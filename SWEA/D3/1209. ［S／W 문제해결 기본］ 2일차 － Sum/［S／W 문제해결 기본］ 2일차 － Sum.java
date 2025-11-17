@@ -67,26 +67,23 @@ class Solution
             }
 
             int max = 0;
-
-            // 행, 열 최댓값 구하기
+            int leftDiagonalSum = 0;
+            int rightDiagonalSum = 0;
             for (int x = 0; x < 100; x++) {
                 int rowSum = 0;
                 int colSum = 0;
                 for (int y = 0; y < 100; y++) {
                     rowSum += matrix[x][y];
                     colSum += matrix[y][x];
+                    if (x == y) {
+                        leftDiagonalSum += matrix[x][y];
+                    }
+                    if (x + y == 99) {
+                        rightDiagonalSum += matrix[x][y];
+                    }
                 }
                 max = Math.max(max, Math.max(rowSum, colSum));
             }
-
-            // 대각선 최댓값 구하기
-            int leftDiagonalSum = 0;
-            int rightDiagonalSum = 0;
-            for (int i = 0; i < 100; i++) {
-                leftDiagonalSum += matrix[i][i];
-                rightDiagonalSum += matrix[i][99 - i];
-            }
-
             max = Math.max(max, Math.max(leftDiagonalSum, rightDiagonalSum));
 
             System.out.printf("#%d %d\n", test_case, max);
