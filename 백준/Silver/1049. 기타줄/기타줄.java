@@ -24,11 +24,16 @@ class Main {
             eachMin = Math.min(eachMin, each);
         }
 
-        int minPrice = eachMin * n;
-        for (int i = 0; i <= (int) Math.ceil(1.0 * n / 6.0); i++) {
-            int totalPrice = (i * bulkMin) + (Math.max(0, n - (i * 6)) * eachMin);
-            minPrice = Math.min(minPrice, totalPrice);
+        int minPrice = 0;
+        if (eachMin * 6 < bulkMin) {
+            minPrice = eachMin * n;
+        } else {
+            int bulkCount = n / 6;
+            int expectedPrice = bulkCount * bulkMin + (n - (bulkCount * 6)) * eachMin;
+            int onlyBulk = (bulkCount + 1) * bulkMin;
+            minPrice = Math.min(expectedPrice, onlyBulk);
         }
+
         System.out.println(minPrice);
     }
 }
