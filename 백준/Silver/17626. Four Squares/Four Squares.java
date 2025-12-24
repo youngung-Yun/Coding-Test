@@ -10,14 +10,11 @@ public class Main {
         int[] dp = new int[n+1];
         for (int i = 1; i <= n; ++i) {
             dp[i] = i;
-            if (Math.sqrt(i) % 1.0 == 0.0) {
-                dp[i] = 1;
-            }
         }
 
         for (int i = 1; i <= n; i++) {
-            for (int j = 1; j < i; j += ((int) Math.sqrt(j) * 2 + 1)) {
-                dp[i] = Integer.min(dp[i], dp[j] + dp[i-j]);
+            for (int j = 1; j * j <= i; j++) {
+                dp[i] = Math.min(dp[i], dp[i - j * j] + 1);
             }
         }
         System.out.println(dp[n]);
