@@ -17,7 +17,7 @@ public class Main {
         int right = 0;
 
         while (right < n) {
-            int rightElement =  array[right];
+            int rightElement = array[right];
             ++counts[rightElement];
             ++right;
             // element를 추가 했을 때 개수가 초과되면, left에서 element가 나올 때까지 크기를 줄여야 함
@@ -28,7 +28,6 @@ public class Main {
             }
             result = Integer.max(result, right - left);
         }
-        result = Integer.max(result, right - left);
         System.out.println(result);
     }
 
