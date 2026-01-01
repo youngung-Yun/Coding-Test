@@ -30,8 +30,4 @@ public class Main {
         }
         System.out.println(result);
     }
-
-    private static int getMax(Collection<Integer> values) {
-        return values.stream().mapToInt(Integer::intValue).max().getAsInt();
-    }
 }
