@@ -3,9 +3,6 @@ import java.io.InputStreamReader;
 import java.util.*;
 
 public class Main {
-
-    private static int result = 50 * 50 * 23 + 1;
-
     public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
@@ -29,3 +26,4 @@ public class Main {
         System.out.println(price + " " + income);
     }
 }
+
