@@ -4,60 +4,79 @@ import java.util.*;
 
 public class Main {
 
+    private static int[] parent;
+
+    private static int find(int x) {
+        if (parent[x] == x) {
+            return x;
+        }
+        // 재귀로 경로 압축
+        parent[x] = find(parent[x]);
+
+        return parent[x];
+    }
+
+    private static void union(int x, int y) {
+        int parentX = find(x);
+        int parentY = find(y);
+        parent[parentY] = parentX;
+    }
+
     public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
         int n = Integer.parseInt(st.nextToken());
         int m = Integer.parseInt(st.nextToken());
 
-        ArrayDeque<Integer> queue = new ArrayDeque<>();
+        parent = new int[n+1];
+        for (int i = 1; i <= n; i++) {
+            parent[i] = i;
+        }
+
         st = new StringTokenizer(br.readLine());
         int truthCount = Integer.parseInt(st.nextToken());
-        boolean[] isKnowTruth = new boolean[n+1];
-        // 진실을 아는 사람 큐에 삽입
-        if (truthCount > 0) {
-            for (int i = 0; i < truthCount; i++) {
-                int participant = Integer.parseInt(st.nextToken());
-                queue.offerLast(participant);
-                isKnowTruth[participant] = true;
-            }
+        int[] truthPeople = new int[truthCount];
+        for (int i = 0; i < truthCount; i++) {
+            truthPeople[i] = Integer.parseInt(st.nextToken());
         }
-        // 각 파티를 Set으로 하고 참가자들 저장
-        List<Set<Integer>> parties = new ArrayList<>();
+        // 진실을 아는 사람 같은 그룹으로 묶기
+        for (int i = 1; i < truthCount; i++) {
+            union(truthPeople[0], truthPeople[i]);
+        }
+
+        List<List<Integer>> parties = new ArrayList<>();
         for (int i = 0; i < m; i++) {
-            Set<Integer> set = new HashSet<>();
+            parties.add(new ArrayList<>());
+        }
+        for (int i = 0; i < m; i++) {
             st = new StringTokenizer(br.readLine());
-            int participants = Integer.parseInt(st.nextToken());
-            for (int j = 0; j < participants; j++) {
-                set.add(Integer.parseInt(st.nextToken()));
+            int participantCount = Integer.parseInt(st.nextToken());
+            List<Integer> party = parties.get(i);
+            for (int j = 0; j < participantCount; j++) {
+                int participant = Integer.parseInt(st.nextToken());
+                party.add(participant);
             }
-            parties.add(set);
+            // 파티 참가자들을 같은 그룹으로 묶기
+            for (int j = 1; j < participantCount; j++) {
+                union(party.get(0), party.get(j));
+            }
         }
-        boolean[] mustTellTruthInParty = new boolean[m];
-        // 맨 처음 진실을 아는 참가자가 참가하는 파티에서는 진실을 말해야 하고
-        // 거기서 진실을 들었던 참가자들이 참가하는 파티에서도 진실만을 말해야 함 == 큐에 삽입하여 반복
-        while (!queue.isEmpty()) {
-            int knowTruth = queue.removeFirst();
-            for (int i = 0; i < m; i++) {
-                Set<Integer> party = parties.get(i);
-                if (!party.contains(knowTruth)) {
-                    continue;
+
+        int result = 0;
+        for (List<Integer> party : parties) {
+            boolean canTellLies = true;
+            // 파티 참가자 중 진실을 아는 사람과 같은 그룹인 사람이 있으면
+            // 그 파티에서는 진실을 말할 수 없음
+            for (int participant : party) {
+                if (truthCount > 0 && find(participant) == find(truthPeople[0])) {
+                    canTellLies = false;
+                    break;
                 }
-                mustTellTruthInParty[i] = true;
-                for (int participant : party) {
-                    if (!isKnowTruth[participant]) {
-                        queue.offerLast(participant);
-                        isKnowTruth[participant] = true;
-                    }
-                }
+            }
+            if (canTellLies) {
+                ++result;
             }
         }
-        int count = 0;
-        for (boolean flag : mustTellTruthInParty) {
-            if(!flag) {
-                ++count;
-            }
-        }
-        System.out.println(count);
+        System.out.println(result);
     }
 }
