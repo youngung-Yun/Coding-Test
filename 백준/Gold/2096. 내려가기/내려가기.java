@@ -4,9 +4,6 @@ import java.util.StringTokenizer;
 
 public class Main {
 
-    private static int[][] directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
-    private static int result = 0;
-
     public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         int n = Integer.parseInt(br.readLine());
