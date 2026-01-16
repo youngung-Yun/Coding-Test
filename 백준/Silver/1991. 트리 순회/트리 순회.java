@@ -1,73 +1,84 @@
-import java.io.*;
-import java.util.*;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.StringTokenizer;
 
 public class Main {
 
+    static StringBuilder sb = new StringBuilder();
+
     public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
-        StringBuilder sb = new StringBuilder();
+        Map<Character, Node> nodeMap = new HashMap<>();
+
+        Node ROOT = new Node('A', null, null);
+        nodeMap.put('A', ROOT);
 
         int n = Integer.parseInt(br.readLine());
-        Map<Character, Node> map = new HashMap<>();
-
         for (int i = 0; i < n; i++) {
-            String[] input = br.readLine().split(" ");
-            char name = input[0].charAt(0);
-            char left = input[1].charAt(0);
-            char right = input[2].charAt(0);
-            map.put(name, new Node(left, right));
+            StringTokenizer st = new StringTokenizer(br.readLine());
+
+            char ch = st.nextToken().charAt(0);
+            char left = st.nextToken().charAt(0);
+            char right = st.nextToken().charAt(0);
+
+            Node parent = nodeMap.get(ch);
+            if (left != '.') {
+                Node leftChild = new Node(left, null, null);
+                parent.left = leftChild;
+                nodeMap.put(left, leftChild);
+            }
+            if (right != '.') {
+                Node rightChild = new Node(right, null, null);
+                parent.right = rightChild;
+                nodeMap.put(right, rightChild);
+            }
         }
 
-        preOrder(map, 'A', sb);
+        prefix(ROOT);
         sb.append('\n');
-        inOrder(map, 'A', sb);
+        infix(ROOT);
         sb.append('\n');
-        postOrder(map, 'A', sb);
-
-        bw.write(sb.toString());
-        bw.flush();
+        postfix(ROOT);
+        System.out.println(sb);
     }
 
-    private static void preOrder(Map<Character, Node> map, char name, StringBuilder sb) {
-        sb.append(name);
-
-        Node curr = map.get(name);
-        if (curr.left != '.') {
-            preOrder(map, curr.left, sb);
+    static void prefix(Node root) {
+        if (root == null) {
+            return;
         }
-        if (curr.right != '.') {
-            preOrder(map, curr.right, sb);
-        }
+        sb.append(root.name);
+        prefix(root.left);
+        prefix(root.right);
     }
 
-    private static void inOrder(Map<Character, Node> map, char name, StringBuilder sb) {
-        Node curr = map.get(name);
-        if (curr.left != '.') {
-            inOrder(map, curr.left, sb);
+    static void infix(Node root) {
+        if (root == null) {
+            return;
         }
-        sb.append(name);
-        if (curr.right != '.') {
-            inOrder(map, curr.right, sb);
-        }
+        infix(root.left);
+        sb.append(root.name);
+        infix(root.right);
     }
 
-    private static void postOrder(Map<Character, Node> map, char name, StringBuilder sb) {
-        Node curr = map.get(name);
-        if (curr.left != '.') {
-            postOrder(map, curr.left, sb);
+    static void postfix(Node root) {
+        if (root == null) {
+            return;
         }
-        if (curr.right != '.') {
-            postOrder(map, curr.right, sb);
-        }
-        sb.append(name);
+        postfix(root.left);
+        postfix(root.right);
+        sb.append(root.name);
     }
 
-    private static class Node {
-        public char left;
-        public char right;
+    static class Node {
+        public char name;
+        public Node left;
+        public Node right;
 
-        public Node(char left, char right) {
+        public Node(char name, Node left, Node right) {
+            this.name = name;
             this.left = left;
             this.right = right;
         }
