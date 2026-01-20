@@ -20,37 +20,35 @@ public class Main {
             for (int i = 0; i <= n; i++) {
                 adjacency.add(new ArrayList<>());
             }
-            int[] indegrees = new int[n+1];
+
+            // 자신의 선행 노드 넣음
             for (int i = 0; i < k; i++) {
                 st = new StringTokenizer(br.readLine());
                 int a = Integer.parseInt(st.nextToken());
                 int b = Integer.parseInt(st.nextToken());
-                adjacency.get(a).add(b);
-                ++indegrees[b];
+                adjacency.get(b).add(a);
             }
 
             int w = Integer.parseInt(br.readLine());
+
             int[] elapsed = new int[n+1];
-            Deque<Integer> queue = new ArrayDeque<>();
-            // 진입 차수 0인 노드 큐에 넣기
-            for (int i = 1; i <= n; i++) {
-                if (indegrees[i] == 0) {
-                    queue.offerLast(i);
-                    elapsed[i] = times[i];
-                }
-            }
-            while (!queue.isEmpty()) {
-                int current = queue.removeLast();
-                for (int dest : adjacency.get(current)) {
-                    elapsed[dest] = Integer.max(elapsed[dest], elapsed[current] + times[dest]);
-                    --indegrees[dest];
-                    if (indegrees[dest] == 0) {
-                        queue.offerLast(dest);
-                    }
-                }
-            }
+            Arrays.fill(elapsed, -1);
+
+            dp(adjacency, elapsed, times, w);
             sb.append(elapsed[w]).append('\n');
+
         }
         System.out.println(sb);
+    }
+
+    static void dp(List<List<Integer>> adjacency, int[] elapsed, int[] times, int current) {
+        int max = 0;
+        for (int prev : adjacency.get(current)) {
+            if (elapsed[prev] == -1) {
+                dp(adjacency, elapsed, times, prev);
+            }
+            max = Integer.max(max, elapsed[prev]);
+        }
+        elapsed[current] = max + times[current];
     }
 }
