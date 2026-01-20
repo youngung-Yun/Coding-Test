@@ -2,8 +2,6 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.StringTokenizer;
 
-import static java.util.Collections.rotate;
-
 public class Main {
     public static void main(String[] args) throws Exception {
 
@@ -22,7 +20,7 @@ public class Main {
         }
 
         for (int i = 0; i < r; i++) {
-            matrix = rotate(matrix, n, m);
+            rotate(matrix, n, m);
         }
         StringBuilder sb = new StringBuilder();
         for (int[] row : matrix) {
@@ -41,18 +39,22 @@ public class Main {
      * 2. 한 바퀴 돌 때까지 순회
      * 3. 다 돌았으면 다음 안쪽 사각형으로
      */
-    static int[][] rotate(int[][] matrix, int r, int c) {
-        int[][] result = new int[r][c];
-
+    static void rotate(int[][] matrix, int r, int c) {
+        boolean[][] visited = new boolean[r][c];
         int start = 0;
-        while (result[start][start] == 0) {
+        while (!visited[start][start]) {
             int x = start;
             int y = start;
+            int prev = matrix[x][y];
             for (int[] dir : dirs) {
                 int nx = x + dir[0];
                 int ny = y + dir[1];
-                while (isValidPosition(nx, ny, r, c) && result[nx][ny] == 0) {
-                    result[nx][ny] = matrix[x][y];
+                while (isValidPosition(nx, ny, r, c) && !visited[nx][ny]) {
+                    visited[nx][ny] = true;
+
+                    int now = matrix[nx][ny];
+                    matrix[nx][ny] = prev;
+                    prev = now;
                     x = nx;
                     y = ny;
                     nx += dir[0];
@@ -61,7 +63,6 @@ public class Main {
             }
             ++start;
         }
-        return result;
     }
 
     static boolean isValidPosition(int x, int y, int r, int c) {
