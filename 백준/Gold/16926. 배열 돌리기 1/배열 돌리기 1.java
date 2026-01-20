@@ -1,71 +1,69 @@
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.StringTokenizer;
 
 public class Main {
-    public static void main(String[] args) throws Exception {
 
+	public static void main(String[] args) throws IOException {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer st = new StringTokenizer(br.readLine());
+		int N = Integer.parseInt(st.nextToken());
+		int M = Integer.parseInt(st.nextToken());
+		int R = Integer.parseInt(st.nextToken());
+		
+		String[][] l = new String[N][M];
+		
+		
+		for(int r = 0; r < N; r++) {
+			st = new StringTokenizer(br.readLine());
+			for(int c = 0; c < M; c++) {
+				l[r][c] = st.nextToken();
+			}
+		}
+		
+		for(int r = 0; r < R; r++) {
+			int tempr = N;
+			int tempc = M;
+			String[][] newl = new String[N][M]; 
+			int[] start = {0, 0};
+			int[] end = {N - 1, M - 1};
+			
+			while(true) {
+				for(int i = 0; i < tempc - 1; i++) {
+					newl[start[0]][start[1] + i] = l[start[0]][start[1] + i + 1]; 
+				}
+				for(int i = 0; i < tempr - 1; i++) {
+					newl[start[0] + i][end[1]] = l[start[0] + i + 1][end[1]];
+				}
+				for(int i = 0; i < tempc - 1; i++) {
+					newl[end[0]][end[1] - i] = l[end[0]][end[1] - i - 1];
+				}
+				for(int i = 0; i < tempr - 1; i++) {
+					newl[end[0] - i][start[1]] = l[end[0] - i - 1][start[1]];
+				}
+				start[0]++;
+				start[1]++;
+				end[0]--;
+				end[1]--;
+				tempr -= 2;
+				tempc -= 2;
+				if(tempr == 0 || tempc == 0) {
+					break;
+				}
+			}
+			l = newl;	
+		}
 
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine());
-        int n = Integer.parseInt(st.nextToken());
-        int m = Integer.parseInt(st.nextToken());
-        int r = Integer.parseInt(st.nextToken());
-        int[][] matrix = new int[n][m];
-        for (int row = 0; row < n; ++row) {
-            st = new StringTokenizer(br.readLine());
-            for (int col = 0; col < m; ++col) {
-                matrix[row][col] = Integer.parseInt(st.nextToken());
-            }
-        }
+		
+		StringBuilder sb = new StringBuilder();
+		
+		for(int i = 0; i < N; i++) {
+			for(int j = 0; j < M; j++) {
+				sb.append(l[i][j]).append(" ");
+			}
+			sb.append("\n");
+		}
+		System.out.println(sb);
 
-        for (int i = 0; i < r; i++) {
-            rotate(matrix, n, m);
-        }
-        StringBuilder sb = new StringBuilder();
-        for (int[] row : matrix) {
-            for (int col : row) {
-                sb.append(col).append(' ');
-            }
-            sb.append('\n');
-        }
-        System.out.println(sb);
-    }
+	}
 
-    static int[][] dirs = {{1, 0}, {0, 1}, {-1, 0}, {0, -1}};
-
-    /*
-     * 1. 왼쪽 위부터 시작
-     * 2. 한 바퀴 돌 때까지 순회
-     * 3. 다 돌았으면 다음 안쪽 사각형으로
-     */
-    static void rotate(int[][] matrix, int r, int c) {
-        boolean[][] visited = new boolean[r][c];
-        int start = 0;
-        while (!visited[start][start]) {
-            int x = start;
-            int y = start;
-            int prev = matrix[x][y];
-            for (int[] dir : dirs) {
-                int nx = x + dir[0];
-                int ny = y + dir[1];
-                while (isValidPosition(nx, ny, r, c) && !visited[nx][ny]) {
-                    visited[nx][ny] = true;
-
-                    int now = matrix[nx][ny];
-                    matrix[nx][ny] = prev;
-                    prev = now;
-                    x = nx;
-                    y = ny;
-                    nx += dir[0];
-                    ny += dir[1];
-                }
-            }
-            ++start;
-        }
-    }
-
-    static boolean isValidPosition(int x, int y, int r, int c) {
-        return x >= 0 && y >= 0 && x < r && y < c;
-    }
 }
