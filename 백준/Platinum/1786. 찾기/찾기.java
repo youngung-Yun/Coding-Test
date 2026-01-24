@@ -1,65 +1,65 @@
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.StringTokenizer;
+
 
 public class Main {
 
     public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
-        StringBuilder sb = new StringBuilder();
 
-        String t = br.readLine();
-        String p = br.readLine();
-
-        int[] failure = makeFailture(p);
-
-        int j = 0;
+        String string = br.readLine();
+        String pattern = br.readLine();
+        int[] lps = computeLpsArray(pattern);
         int count = 0;
-        List<Integer> indices = new ArrayList<>();
-        for (int i = 0; i < t.length(); i++) {
-            while (j > 0 && t.charAt(i) != p.charAt(j)) {
-                j = failure[j - 1];
+        List<Integer> pos = new ArrayList<>();
+        int length = 0;
+        for (int i = 0; i < string.length(); i++) {
+            // 현재 문자가 일치하는 실패 함수 찾을때까지 이동
+            while (length > 0 && string.charAt(i) != pattern.charAt(length)) {
+                length = lps[length - 1];
             }
-            if (t.charAt(i) == p.charAt(j)) {
-                j++;
+            // 찾아서 일치하면 length 1 증가 (일치하지 않으면 length는 0임)
+            if (string.charAt(i) == pattern.charAt(length)) {
+                length += 1;
             }
-            if (j == p.length()) {
-                ++count;
-                indices.add(i - p.length() + 2);
-                j = failure[j - 1];
+            // 패턴이 모두 일치
+            if (length == pattern.length()) {
+                count += 1;
+                pos.add(i - length + 1);
+                length = lps[length - 1];
             }
         }
 
+        StringBuilder sb = new StringBuilder();
         sb.append(count).append('\n');
-        for (int index : indices) {
-            sb.append(index).append(' ');
+        for (int index : pos) {
+            // 들어가 있는건 0-based인 인덱스이기 때문에 1을 더해서 1-based로 만듦
+            sb.append(index + 1).append('\n');
         }
-
-        bw.write(sb.toString());
-        bw.flush();
+        System.out.println(sb);
     }
 
-    private static int[] makeFailture(String str) {
-        int j = 0;
-        int[] failure = new int[str.length()];
-
-        // 실패 함수 만들기
-        for (int i = 1; i < str.length(); i++) {
-            // j > 0 : j가 0이면 일치하는 단어 없음
-            // s.charAt(i) != s.charAt(J) : 마지막 단어가 일치 안함
-            // j -> failure[j - 1]
-            // 일치하지 않는 j를 제외하고 S[0: j-1]까지에서 제일 긴 겹치는 단어 길이 = F[j - 1]
-            // 마지막이 안겹치면 다시 반복
-            while (j > 0 && str.charAt(i) != str.charAt(j)) {
-                j = failure[j - 1];
+    static int[] computeLpsArray(String pattern) {
+        int m = pattern.length();
+        // lps[i] = 앞의 (i+1)글자에서 접두사와 접미사가 일치하는 최대 길이
+        int[] lps = new int[m];
+        // 현재 일치하는 부분의 길이
+        int length = 0;
+        for (int i = 1; i < m; i++) {
+            while (length > 0 && pattern.charAt(i) != pattern.charAt(length)) {
+                length = lps[length - 1];
             }
-            // s[i] == s[j]면 이전 실패 함수 값 + 1 = j
-            if (str.charAt(i) == str.charAt(j)) {
-                failure[i] = ++j;
+            if (pattern.charAt(i) == pattern.charAt(length)) {
+                length += 1;
+                lps[i] = length;
             }
         }
-
-        return failure;
+        return lps;
     }
+
 }
-
