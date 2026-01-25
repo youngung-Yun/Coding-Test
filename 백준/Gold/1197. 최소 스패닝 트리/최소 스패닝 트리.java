@@ -1,77 +1,87 @@
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.StringTokenizer;
+
 
 public class Main {
 
+    static int[] parent;
+    static int[] rank;
+
     public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
-        StringBuilder sb = new StringBuilder();
+        // 크루스칼 알고리즘으로 풀기
+        StringTokenizer token = new StringTokenizer(br.readLine());
+        int v = Integer.parseInt(token.nextToken());
+        int e = Integer.parseInt(token.nextToken());
 
-        // 프림 알고리즘으로 구현
-        String[] input = br.readLine().split(" ");
-        int v = Integer.parseInt(input[0]);
-        int e = Integer.parseInt(input[1]);
-
-        // 인접 리스트 초기화
-        List<Edge>[] adjList = new ArrayList[v + 1];
-        for (int i = 1; i <= v; i++) {
-            adjList[i] = new ArrayList<>();
-        }
-
+        int[][] edges = new int[e][3];
         for (int i = 0; i < e; i++) {
-            String[] temp = br.readLine().split(" ");
-            int start = Integer.parseInt(temp[0]);
-            int dest = Integer.parseInt(temp[1]);
-            int cost = Integer.parseInt(temp[2]);
-            adjList[start].add(new Edge(dest, cost));
-            adjList[dest].add(new Edge(start, cost));
+            token = new StringTokenizer(br.readLine());
+            int a = Integer.parseInt(token.nextToken());
+            int b = Integer.parseInt(token.nextToken());
+            int c = Integer.parseInt(token.nextToken());
+            edges[i] = new int[] {a, b, c};
         }
+        Arrays.sort(edges, (e1, e2) -> Integer.compare(e1[2], e2[2]));
 
-        // 방문 체크 배열
-        boolean[] visited = new boolean[v + 1];
-        visited[1] = true;
-
-        // 시작 지점과 연결된 간선 우선순위 큐에 넣음
-        PriorityQueue<Edge> pQueue = new PriorityQueue<>((e1, e2) -> Integer.compare(e1.cost, e2.cost));
-        for (Edge edge : adjList[1]) {
-            pQueue.add(edge);
+        parent = new int[v+1];
+        for (int i = 1; i <= v; i++) {
+            parent[i] = i;
         }
+        rank = new int[v+1];
 
+        int answer = 0;
         int count = 0;
-        int total = 0;
-
-        while (count < v - 1) {
-            Edge curr = pQueue.poll();
-
-            // 사이클이 생기는 간선 무시
-            if (visited[curr.dest]) {
+        for (int[] edge : edges) {
+            int a = edge[0];
+            int b = edge[1];
+            int c = edge[2];
+            if (find(a) == find(b)) {
                 continue;
             }
-
-            visited[curr.dest] = true;
-            ++count;
-            total += curr.cost;
-
-            // 사이클이 형성되는 간선은 넣지 않음
-            for (Edge edge : adjList[curr.dest]) {
-                if (!visited[edge.dest]) {
-                    pQueue.add(edge);
-                }
+            if (union(a, b)) {
+                answer += c;
+                count += 1;
             }
-
+            if (count == v - 1) {
+                break;
+            }
         }
-
-        System.out.println(total);
+        System.out.println(answer);
     }
 
-    private static class Edge {
-        public int dest;
-        public int cost;
-
-        public Edge(int dest, int cost) {
-            this.dest = dest;
-            this.cost = cost;
+    static int find(int x) {
+        // 경로 압축
+        if (x != parent[x]) {
+            parent[x] = find(parent[x]);
         }
+        return parent[x];
     }
+
+    static boolean union(int x, int y) {
+        int parentX = find(x);
+        int parentY = find(y);
+        // 같은 집합이면 false
+        if (parentX == parentY) {
+            return false;
+        }
+
+        // union by rank : 랭크가 더 큰 쪽이 부모가 됨
+        if (rank[parentX] < rank[parentY]) {
+            parent[parentX] = parentY;
+        } else if (rank[parentX] > rank[parentY]) {
+            parent[parentY] = parentX;
+        } else {
+            // 랭크가 같으면 한 쪽이 부모가 되고 rank 1 증가됨
+            int min = Integer.min(parentX, parentY);
+            int max = Integer.max(parentX, parentY);
+            parent[max] = min;
+            rank[min] += 1;
+        }
+
+        return true;
+    }
+
 }
