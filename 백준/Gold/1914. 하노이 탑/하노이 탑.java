@@ -3,34 +3,29 @@ import java.math.BigInteger;
 
 public class Main {
 
-    private static BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(System.out));
+    private static StringBuilder sb = new StringBuilder();
+    private static BigInteger[] dp;
 
     public static void main(String[] args) throws Exception {
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
         int n = Integer.parseInt(reader.readLine());
-
-        if (n == 1) {
-            writer.write(String.valueOf(1));
-            writer.write('\n');
-        } else {
-            writer.write(new BigInteger("2").pow(n).subtract(new BigInteger("1")).toString());
-            writer.write('\n');
+        dp = new BigInteger[n+1];
+        dp[1] = new BigInteger("1");
+        for (int i = 2; i <= n; i++) {
+            dp[i] = dp[i-1].multiply(new BigInteger("2")).add(new BigInteger("1"));
         }
-        writer.flush();
 
+        sb.append(dp[n].toString()).append('\n');
         if (n <= 20) {
             recursion(n, 1, 3, 2);
-            writer.flush();
         }
+        System.out.println(sb);
     }
 
     private static void recursion(int count, int from, int to, int through) throws IOException {
         if (count == 1) {
-            writer.write(String.valueOf(from));
-            writer.write(' ');
-            writer.write(String.valueOf(to));
-            writer.write('\n');
+            sb.append(from).append(' ').append(to).append('\n');
             return;
         }
         recursion(count - 1, from, through, to);
