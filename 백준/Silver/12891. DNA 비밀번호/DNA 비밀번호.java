@@ -1,60 +1,64 @@
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.StringTokenizer;
 
 public class Main {
+
     public static void main(String[] args) throws Exception {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
-        StringTokenizer st;
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        StringBuilder sb = new StringBuilder();
 
-        st = new StringTokenizer(br.readLine());
-        int s = Integer.parseInt(st.nextToken());
-        int p = Integer.parseInt(st.nextToken());
+        StringTokenizer token = new StringTokenizer(reader.readLine());
+        int s = Integer.parseInt(token.nextToken());
+        int p = Integer.parseInt(token.nextToken());
+        String dna = reader.readLine();
 
-        String dna = br.readLine();
+        // A, C, G, T
+        int[] constraints = new int[4];
+        token = new StringTokenizer(reader.readLine());
+        for (int i = 0; i < 4; i++) {
+            constraints[i] = Integer.parseInt(token.nextToken());
+        }
 
-        // init
-        st = new StringTokenizer(br.readLine());
-        Map<Character, Integer> criteriaMap = new HashMap<>();
-        criteriaMap.put('A', Integer.parseInt(st.nextToken()));
-        criteriaMap.put('C', Integer.parseInt(st.nextToken()));
-        criteriaMap.put('G', Integer.parseInt(st.nextToken()));
-        criteriaMap.put('T', Integer.parseInt(st.nextToken()));
-
-        Map<Character, Integer> currentMap = new HashMap<>();
-        currentMap.put('A', 0);
-        currentMap.put('C', 0);
-        currentMap.put('G', 0);
-        currentMap.put('T', 0);
-
-        int count = 0;
-
+        int[] currentCount = new int[4];
+        // 슬라이딩 윈도우 초기화
         for (int i = 0; i < p; i++) {
             char ch = dna.charAt(i);
-            currentMap.put(ch, currentMap.get(ch) + 1);
+            ++currentCount[getIndex(ch)];
         }
 
-        if (isValid(criteriaMap, currentMap)) {
-            ++count;
+        int ans = 0;
+        if (followConstraint(constraints, currentCount)) {
+            ++ans;
         }
 
-        for (int i = 0; i < s - p; i++) {
-            char out = dna.charAt(i);
-            currentMap.put(out, currentMap.get(out) - 1);
-            char in = dna.charAt(i + p);
-            currentMap.put(in, currentMap.get(in) + 1);
-
-            if (isValid(criteriaMap, currentMap)) {
-                ++count;
+        int left = 0;
+        for (int i = p; i < s; i++) {
+            ++currentCount[getIndex(dna.charAt(i))];
+            --currentCount[getIndex(dna.charAt(left))];
+            if (followConstraint(constraints, currentCount)) {
+                ++ans;
             }
+            ++left;
         }
-
-        System.out.println(count);
+        System.out.println(ans);
     }
 
-    private static boolean isValid(Map<Character, Integer> criteria, Map<Character, Integer> current) {
-        for (char ch : criteria.keySet()) {
-            if (criteria.get(ch) > current.get(ch)) {
+    static int getIndex(char ch) {
+        if (ch == 'A') {
+            return 0;
+        } else if (ch == 'C') {
+            return 1;
+        } else if (ch == 'G') {
+            return 2;
+        } else {
+            return 3;
+        }
+    }
+
+    static boolean followConstraint(int[] constraint, int[] current) {
+        for (int i = 0; i < 4; i++) {
+            if (constraint[i] > current[i]) {
                 return false;
             }
         }
