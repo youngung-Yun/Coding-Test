@@ -1,44 +1,52 @@
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.StringTokenizer;
 
 public class Main {
+
     public static void main(String[] args) throws Exception {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
-        StringTokenizer st;
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        StringBuilder sb = new StringBuilder();
 
-        st = new StringTokenizer(br.readLine());
-        int n = Integer.parseInt(st.nextToken());
-        int m = Integer.parseInt(st.nextToken());
+        StringTokenizer token = new StringTokenizer(reader.readLine());
+        int n = Integer.parseInt(token.nextToken());
+        int m = Integer.parseInt(token.nextToken());
 
-        int[][] sumMatrix = new int[n + 1][n + 1];
-
-        for (int i = 1; i <= n; i++) {
-            st = new StringTokenizer(br.readLine());
-            for (int k = 1; k <= n; k++) {
-                int element = Integer.parseInt(st.nextToken());
-                sumMatrix[i][k] = sumMatrix[i][k - 1] + element;
+        int[][] prefixSum = new int[n][n];
+        for (int i = 0; i < n; i++) {
+            token = new StringTokenizer(reader.readLine());
+            for (int j = 0; j < n; j++) {
+                int number = Integer.parseInt(token.nextToken());
+                if (j == 0) {
+                    prefixSum[i][j] = number;
+                } else {
+                    prefixSum[i][j] = prefixSum[i][j-1] + number;
+                }
             }
         }
 
-        StringBuilder sb = new StringBuilder();
         for (int i = 0; i < m; i++) {
-            st = new StringTokenizer(br.readLine());
-            int x1 = Integer.parseInt(st.nextToken());
-            int y1 = Integer.parseInt(st.nextToken());
-            int x2 = Integer.parseInt(st.nextToken());
-            int y2 = Integer.parseInt(st.nextToken());
-
-            long sum = 0L;
-            for (int x = x1; x <= x2; x++) {
-                sum += (sumMatrix[x][y2] - sumMatrix[x][y1 - 1]);
-            }
-
+            token = new StringTokenizer(reader.readLine());
+            // to 0-based
+            int x1 = Integer.parseInt(token.nextToken()) - 1;
+            int y1 = Integer.parseInt(token.nextToken()) - 1;
+            int x2 = Integer.parseInt(token.nextToken()) - 1;
+            int y2 = Integer.parseInt(token.nextToken()) - 1;
+            int sum = getSum(prefixSum, x1, y1, x2, y2);
             sb.append(sum).append('\n');
         }
+        System.out.println(sb);
+    }
 
-        bw.write(sb.toString());
-        bw.flush();
-        bw.close();
+    static int getSum(int[][] prefix, int x1, int y1, int x2, int y2) {
+        int sum = 0;
+        for (int i = x1; i <= x2; i++) {
+            if (y1 == 0) {
+                sum += prefix[i][y2];
+            } else {
+                sum += prefix[i][y2] - prefix[i][y1-1];
+            }
+        }
+        return sum;
     }
 }
