@@ -1,32 +1,39 @@
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.StringTokenizer;
 
 public class Main {
+
     public static void main(String[] args) throws Exception {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
-
-        String[] tmp = br.readLine().split(" ");
-        int n = Integer.parseInt(tmp[0]);
-        int m = Integer.parseInt(tmp[1]);
-
-        int[] list = Arrays.stream(br.readLine().split(" ")).mapToInt(Integer::parseInt).toArray();
-
-        int[] sumList = new int[n + 1];
-        for (int i = 1; i <= n; i++) {
-            sumList[i] = sumList[i - 1] + list[i - 1];
-        }
-
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < m; i++) {
-            String[] input = br.readLine().split(" ");
-            int start = Integer.parseInt(input[0]);
-            int end = Integer.parseInt(input[1]);
 
-            sb.append(sumList[end] - sumList[start - 1]).append('\n');
+        StringTokenizer token = new StringTokenizer(reader.readLine());
+        int n = Integer.parseInt(token.nextToken());
+        int m = Integer.parseInt(token.nextToken());
+
+        int[] prefixSum = new int[n];
+        token = new StringTokenizer(reader.readLine());
+        for (int i = 0 ; i < n; i++) {
+            int e = Integer.parseInt(token.nextToken());
+            if (i == 0) {
+                prefixSum[i] = e;
+            } else {
+                prefixSum[i] = prefixSum[i-1] + e;
+            }
         }
 
-        bw.write(sb.toString());
-        bw.flush();
+        for (int i = 0; i < m; i++) {
+            token = new StringTokenizer(reader.readLine());
+            // to 0-based
+            int start = Integer.parseInt(token.nextToken()) - 1;
+            int end = Integer.parseInt(token.nextToken()) - 1;
+            if (start == 0) {
+                sb.append(prefixSum[end]).append('\n');
+            } else {
+                sb.append(prefixSum[end] - prefixSum[start - 1]).append('\n');
+            }
+        }
+        System.out.println(sb);
     }
 }
