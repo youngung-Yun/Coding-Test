@@ -2,41 +2,33 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.StringTokenizer;
 
-class Main {
-    
+public class Main {
     public static void main(String[] args) throws Exception {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine());
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
-        int n = Integer.parseInt(st.nextToken());
-        int m = Integer.parseInt(st.nextToken());
-        int[] array = new int[n];
-        st = new StringTokenizer(br.readLine());
+        StringTokenizer token = new StringTokenizer(reader.readLine());
+        int n = Integer.parseInt(token.nextToken());
+        int m = Integer.parseInt(token.nextToken());
+
+        token = new StringTokenizer(reader.readLine());
+        int[] arr = new int[n];
         for (int i = 0; i < n; i++) {
-            array[i] = Integer.parseInt(st.nextToken());
+            arr[i] = Integer.parseInt(token.nextToken());
         }
 
-
-        int count = 0;
-        int start = 0;
-        int end = 0;
+        int ans = 0;
+        int left = 0;
         int sum = 0;
-        while (true) {
-            if (sum < m) {
-                sum += array[end++];
-            } else if (sum == m) {
-                ++count;
-                sum -= array[start++];
-            } else {
-                sum -= array[start++];
+        for (int right = 0; right < n; ++right) {
+            sum += arr[right];
+            while (sum > m && left <= right) {
+                sum -= arr[left];
+                ++left;
             }
-
-            if (end >= n && sum < m) {
-                break;
+            if (sum == m) {
+                ++ans;
             }
         }
-
-        System.out.println(count);
-        br.close();
+        System.out.println(ans);
     }
 }
