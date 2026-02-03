@@ -6,6 +6,8 @@ public class Main {
 
     static int[][][] prefix;
 
+    final static int[] NONE = {0, 0};
+
     public static void main(String[] args) throws Exception {
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer token = new StringTokenizer(reader.readLine());
@@ -36,9 +38,9 @@ public class Main {
     }
 
     static int[] createPrefix(int r, int c, char color) {
-        int[] top = (r == 0) ? new int[] {0, 0} : prefix[r-1][c];
-        int[] left = (c == 0) ? new int[] {0, 0} : prefix[r][c-1];
-        int[] common = (r == 0 || c == 0) ? new int[] {0, 0} : prefix[r-1][c-1];
+        int[] top = (r == 0) ? NONE : prefix[r-1][c];
+        int[] left = (c == 0) ? NONE : prefix[r][c-1];
+        int[] common = (r == 0 || c == 0) ? NONE : prefix[r-1][c-1];
         // r + c 가 짝수면 (0,0)과 같은 색이어야 함. 홀수면 다른 색이어야 함
         int[] current = new int[2];
         if ((r + c) % 2 == 0) {
@@ -59,9 +61,9 @@ public class Main {
     static int[] getPrefix(int x1, int y1, int x2, int y2) {
         int[] current = Arrays.copyOf(prefix[x2][y2], 2);
 
-        int[] top = (x1 == 0) ? new int[] {0, 0} : prefix[x1-1][y2];
-        int[] left = (y1 == 0) ? new int[] {0, 0} : prefix[x2][y1-1];
-        int[] common = (x1 == 0 || y1 == 0) ? new int[] {0, 0} : prefix[x1-1][y1-1];
+        int[] top = (x1 == 0) ? NONE : prefix[x1-1][y2];
+        int[] left = (y1 == 0) ? NONE : prefix[x2][y1-1];
+        int[] common = (x1 == 0 || y1 == 0) ? NONE : prefix[x1-1][y1-1];
 
         for (int i = 0; i < 2; i++) {
             current[i] = current[i] - top[i] - left[i] + common[i];
