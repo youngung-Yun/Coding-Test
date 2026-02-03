@@ -22,13 +22,16 @@ public class Solution {
             Arrays.sort(arr);
 
             int ans = -1;
-            for (int i = n - 1; i >= 1; i--) {
-                for (int j = i - 1; j >= 0; j--) {
-                    int sum = arr[i] + arr[j];
-                    if (sum <= m) {
-                        ans = Integer.max(ans, sum);
-                        break;
-                    }
+            int left = 0;
+            for (int right = n - 1; right >= 1; right--) {
+                if (left >= right) {
+                    break;
+                }
+                int sum = arr[left] + arr[right];
+                while (sum <= m && left < right) {
+                    ans = Integer.max(ans, sum);
+                    ++left;
+                    sum = arr[left] + arr[right];
                 }
             }
             sb.append('#').append(testCase).append(' ').append(ans).append('\n');
