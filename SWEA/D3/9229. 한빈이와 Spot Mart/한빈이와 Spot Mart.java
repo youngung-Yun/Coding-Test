@@ -1,41 +1,48 @@
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.StringTokenizer;
 
 public class Solution {
-    public static void main(String[] args) throws Exception {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringBuilder sb = new StringBuilder();
-        int t = Integer.parseInt(br.readLine());
-        for (int testCase = 1; testCase <= t; testCase++) {
-            StringTokenizer token = new StringTokenizer(br.readLine());
-            int n = Integer.parseInt(token.nextToken());
-            int m = Integer.parseInt(token.nextToken());
 
-            int[] arr = new int[n];
-            token = new StringTokenizer(br.readLine());
-            for (int i = 0; i < n; i++) {
-                arr[i] = Integer.parseInt(token.nextToken());
-            }
+	public static void main(String[] args) throws IOException {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer st = new StringTokenizer(br.readLine());
+		int testcase = Integer.parseInt(st.nextToken());
 
-            Arrays.sort(arr);
+		for (int tc = 1; tc < testcase + 1; tc++) {
+			st = new StringTokenizer(br.readLine());
+			int n = Integer.parseInt(st.nextToken());
+			int m = Integer.parseInt(st.nextToken());
 
-            int ans = -1;
-            int left = 0;
-            for (int right = n - 1; right >= 1; right--) {
-                if (left >= right) {
-                    break;
-                }
-                int sum = arr[left] + arr[right];
-                while (sum <= m && left < right) {
-                    ans = Integer.max(ans, sum);
-                    ++left;
-                    sum = arr[left] + arr[right];
-                }
-            }
-            sb.append('#').append(testCase).append(' ').append(ans).append('\n');
-        }
-        System.out.println(sb);
-    }
+			int[] snacks = new int[n];
+			st = new StringTokenizer(br.readLine());
+			for (int i = 0; i < n; i++) {
+				snacks[i] = Integer.parseInt(st.nextToken());
+			}
+
+			Arrays.sort(snacks);
+
+			int s = 0;
+			int e = n - 1;
+			int maxsum = -1;
+
+			while (s < e) {
+				int sum = snacks[s] + snacks[e];
+				if (sum > m) {
+					e--;
+				} else {
+					if (maxsum < sum) {
+						maxsum = sum;
+					}
+					s++;
+				}
+			}
+			
+			System.out.println("#" + tc + " " + maxsum);
+			
+		}
+	}
+
 }
