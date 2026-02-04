@@ -25,7 +25,7 @@ public class Main {
             sb.append(curr).append('\n');
             return;
         }
-        for (int i = 1; i < 10; i++) {
+        for (int i = 1; i < 10; i += 2) {
             curr *= 10;
             curr += i;
             dfs(curr, depth + 1, n);
