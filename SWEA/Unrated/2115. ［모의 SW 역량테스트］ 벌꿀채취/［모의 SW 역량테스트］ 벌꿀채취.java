@@ -9,6 +9,7 @@ public class Solution {
     static int n;
     static int m;
     static int c;
+    static int[][] maxIncomes;
     static int[][] honey;
     static int ans;
 
@@ -26,6 +27,7 @@ public class Solution {
             m = Integer.parseInt(token.nextToken());
             c = Integer.parseInt(token.nextToken());
             honey = new int[n][n];
+            maxIncomes = new int[n][n];
             for (int i = 0; i < n; i++) {
                 token = new StringTokenizer(bf.readLine());
                 for (int j = 0; j < n; j++) {
@@ -33,20 +35,20 @@ public class Solution {
                 }
             }
 
-            /*
-             * 1. 겹치지 않는 두 직사각형 선택
-             * 2. 최대 양을 초과하지 않는 선에서 범위 중 수익이 가장 많은 꿀 채취
-             * 3. max 비교 후 갱신
-             */
+            for (int i = 0; i < n; i++) {
+                for (int j = 0; j < n; j++) {
+                    maxIncomes[i][j] = getMaxIncomes(i, j);
+                }
+            }
+
             for (int x1 = 0; x1 < n; x1++) {
                 for (int y1 = 0; y1 <= n - m; y1++) {
                     for (int x2 = 0; x2 < n; x2++) {
                         for (int y2 = 0; y2 <= n - m; y2++) {
-                            if (isOverwrapped(x1, y1, x2, y2)) {
+                            if (isOverlapped(x1, y1, x2, y2)) {
                                 continue;
                             }
-                            int income = harvestHoney(x1, y1, x2, y2);
-                            ans = Integer.max(ans, income);
+                            ans = Integer.max(ans, maxIncomes[x1][y1] + maxIncomes[x2][y2]);
                         }
                     }
                 }
@@ -58,13 +60,13 @@ public class Solution {
         System.out.println(sb);
     }
 
-    static int harvestHoney(int x1, int y1, int x2, int y2) {
-        return harvestHoney(x1, y1) + harvestHoney(x2, y2);
-    }
-
-    static int harvestHoney(int x, int y) {
+    static int getMaxIncomes(int x, int y) {
         int[] arr = new int[m];
         for (int i = 0; i < m; i++) {
+            // 범위 밖 제외
+            if (y + i >= n) {
+                return 0;
+            }
             arr[i] = honey[x][y+i];
         }
 
@@ -91,19 +93,18 @@ public class Solution {
         return maxIncome;
     }
 
-    static boolean isOverwrapped(int x1, int y1, int x2, int y2) {
+    static boolean isOverlapped(int x1, int y1, int x2, int y2) {
         if (x1 != x2) {
             return false;
         }
-        boolean[] tmp = new boolean[n];
+        int bit1 = 0;
         for (int y = y1; y < y1 + m; y++) {
-            tmp[y] = true;
+            bit1 += (0b1 << y);
         }
+        int bit2 = 0;
         for (int y = y2; y < y2 + m; y++) {
-            if (tmp[y]) {
-                return true;
-            }
+            bit2 += (0b1 << y);
         }
-        return false;
+        return (bit1 & bit2) != 0;
     }
 }
