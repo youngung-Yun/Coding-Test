@@ -46,10 +46,8 @@ class Solution {
             if (maxConnectedCellCount < connectCell) {
                 maxConnectedCellCount = connectCell;
                 minFiberCount = fiber;
-                return;
-            } else if (maxConnectedCellCount == connectCell && fiber < minFiberCount) {
-                minFiberCount = fiber;
-                return;
+            } else if (maxConnectedCellCount == connectCell) {
+                minFiberCount = Integer.min(minFiberCount, fiber);
             }
             return;
         }
