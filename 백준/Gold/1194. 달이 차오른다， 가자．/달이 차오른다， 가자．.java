@@ -82,6 +82,7 @@ public class Main {
 
                         distance[nx][ny][newKeySet] = distance[cx][cy][keys] + 1;
                         queue.offer(new int[] {nx, ny, newKeySet});
+                        continue;
                     }
                 // 문
                 } else if (Character.isUpperCase(object)) {
