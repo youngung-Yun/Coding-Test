@@ -1,46 +1,40 @@
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Map;
-import java.util.Stack;
-import java.util.StringTokenizer;
+import java.util.*;
 
 public class Main {
 
-	public static void main(String[] args) throws IOException {
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		StringTokenizer st = new StringTokenizer(br.readLine());
-		int n = Integer.parseInt(st.nextToken());
+    public static void main(String[] args) throws Exception {
+        BufferedReader bf = new BufferedReader(new InputStreamReader(System.in));
 
-		st = new StringTokenizer(br.readLine());
-		Stack<Integer> sin = new Stack<>();
-		Stack<int[]> sout = new Stack<>();
+        int n = Integer.parseInt(bf.readLine());
 
-		for (int i = 0; i < n; i++) {
-			sin.push(Integer.parseInt(st.nextToken()));
-		}
+        int[] arr = new int[n];
+        StringTokenizer stk = new StringTokenizer(bf.readLine());
+        for (int i = 0; i < n; i++) {
+            arr[i] = Integer.parseInt(stk.nextToken());
+        }
+        int[] answer = new int[n];
 
-		int[] result = new int[n];
-		int index = n - 1;
-		for (int i = 0; i < n; i++) {
-			int temp = sin.pop();
-			while (true) {
-				if (sout.isEmpty() || sout.peek()[1] > temp) {
-					sout.push(new int[] { index, temp });
-					index--;
-					break;
-				}
-				result[sout.pop()[0]] = n - i;
-			}
-		}
+        Deque<Integer> stack = new ArrayDeque<>();
 
-		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < n; i++) {
-			sb.append(result[i]).append(" ");
-		}
+        for (int i = 0; i < n; i++) {
+            int currentHeight = arr[i];
+            // 스택에 나보다 낮은 탑은 다른 탑의 레이저를 수신받을 일이 없기 때문에 제거
+            while (!stack.isEmpty() && arr[stack.peek()] < currentHeight) {
+                stack.pop();
+            }
+            // 스택의 top에 있는 탑이 나의 왼쪽에 있으면서 나보다 높은 첫 번째 탑
+            if (!stack.isEmpty()) {
+                answer[i] = stack.peek() + 1;
+            }
+            stack.push(i);
+        }
 
-		System.out.println(sb);
-
-	}
-
+        StringBuilder sb = new StringBuilder();
+        for (int i : answer) {
+            sb.append(i).append(' ');
+        }
+        System.out.println(sb);
+    }
 }
