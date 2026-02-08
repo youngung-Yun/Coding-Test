@@ -4,36 +4,45 @@ import java.util.*;
 
 public class Main {
 
-    private static int max = -801;
+    static int ans = 0;
+    static int n;
+    static int[] arr;
 
     public static void main(String[] args) throws Exception {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        int n = Integer.parseInt(br.readLine());
-        int[] array = Arrays.stream(br.readLine().split(" ")).mapToInt(Integer::parseInt).toArray();
+        BufferedReader bf = new BufferedReader(new InputStreamReader(System.in));
 
-        dfs(array, new int[n], new boolean[n], 0, n);
+        n = Integer.parseInt(bf.readLine());
+        arr = new int[n];
+        StringTokenizer stk = new StringTokenizer(bf.readLine());
+        for (int i = 0; i < n; i++) {
+            arr[i] = Integer.parseInt(stk.nextToken());
+        }
 
-        System.out.println(max);
+        findPermutation(0);
+
+        System.out.println(ans);
     }
 
-    private static void dfs(int[] array, int[] newArray, boolean[] visited, int depth, int n) {
+    static void findPermutation(int depth) {
         if (depth == n) {
             int sum = 0;
             for (int i = 0; i < n - 1; i++) {
-                sum += Math.abs(newArray[i + 1] - newArray[i]);
+                sum += Math.abs(arr[i] - arr[i+1]);
             }
-            max = Math.max(max, sum);
+            ans = Integer.max(ans, sum);
             return;
         }
 
-        for (int i = 0; i < n; i++) {
-            if (visited[i]) {
-                continue;
-            }
-            newArray[depth] = array[i];
-            visited[i] = true;
-            dfs(array, newArray, visited, depth + 1, n);
-            visited[i] = false;
+        for (int i = depth; i < n; i++) {
+            swap(depth, i);
+            findPermutation(depth + 1);
+            swap(depth, i);
         }
+    }
+
+    static void swap(int a, int b) {
+        int tmp = arr[a];
+        arr[a] = arr[b];
+        arr[b] = tmp;
     }
 }
