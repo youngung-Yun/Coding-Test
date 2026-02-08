@@ -1,52 +1,54 @@
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.StringTokenizer;
+import java.util.*;
 
 public class Main {
 
-    static int[][] graph;
-    static int result = 10_000_001;
+    static int ans = 1_000_000 * 10;
+    static int n;
+    static int[][] adj;
 
     public static void main(String[] args) throws Exception {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        int n = Integer.parseInt(br.readLine());
-        graph = new int[n][n];
+        BufferedReader bf = new BufferedReader(new InputStreamReader(System.in));
+
+        n = Integer.parseInt(bf.readLine());
+        adj = new int[n][n];
         for (int r = 0; r < n; r++) {
-            StringTokenizer st = new StringTokenizer(br.readLine());
+            StringTokenizer stk = new StringTokenizer(bf.readLine());
             for (int c = 0; c < n; c++) {
-                graph[r][c] = Integer.parseInt(st.nextToken());
+                adj[r][c] = Integer.parseInt(stk.nextToken());
             }
         }
-        dfs(new boolean[n], new int [n], 0, n);
-        System.out.println(result);
+
+        boolean[] visited = new boolean[n];
+        for (int i = 0; i < n; i++) {
+            visited[i] = true;
+            dfs(1, i, i, 0, visited);
+            visited[i] = false;
+        }
+
+        System.out.println(ans);
     }
 
-    static void dfs(boolean[] visited, int[] array, int depth, int n) {
-        if (depth == n - 1) {
-            array[depth] = 0;
-            int start = 0;
-            int cost = 0;
-            for (int d : array) {
-                if (graph[start][d] == 0) {
-                    return;
-                }
-                cost += graph[start][d];
-                start = d;
+    static void dfs(int depth, int start, int curr, int sum, boolean[] visited) {
+        // 이미 최솟값보다 작으면 종료
+        if (sum > ans) {
+            return;
+        }
+        if (depth == n) {
+            // 시작한 지점으로 돌아감
+            if (adj[curr][start] != 0) {
+                ans = Integer.min(ans, sum + adj[curr][start]);
             }
-            result = Integer.min(result, cost);
             return;
         }
 
-        for (int i = 1; i < n; i++) {
-            if (visited[i]) {
+        for (int i = 0; i < n; i++) {
+            if (adj[curr][i] == 0 || visited[i]) {
                 continue;
             }
             visited[i] = true;
-            array[depth] = i;
-            dfs(visited, array, depth + 1, n);
+            dfs(depth + 1, start, i, sum + adj[curr][i], visited);
             visited[i] = false;
         }
     }
