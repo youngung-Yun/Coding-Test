@@ -1,48 +1,86 @@
-import java.io.*;
-import java.util.Arrays;
-import java.util.StringTokenizer;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.*;
 
 public class Main {
-    private static StringBuilder sb = new StringBuilder();
-    public static void main(String[] args) throws Exception {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
-        StringTokenizer st;
+    static StringBuilder sb = new StringBuilder();
+    static int[] nums;
+    static int[] mask;
+    static int k;
+
+    public static void main(String[] args) throws Exception {
+        BufferedReader bf = new BufferedReader(new InputStreamReader(System.in));
+
         while (true) {
-            st = new StringTokenizer(br.readLine());
-            int k = Integer.parseInt(st.nextToken());
+            StringTokenizer stk = new StringTokenizer(bf.readLine());
+            k = Integer.parseInt(stk.nextToken());
             if (k == 0) {
                 break;
             }
-            int[] set = new int[k];
-            for (int i = 0; i < k; i++) {
-                set[i] = Integer.parseInt(st.nextToken());
-            }
-            Arrays.sort(set);
 
-            dfs(set, k, new boolean[50], 0, new int[6], 0);
+            nums = new int[k];
+            for (int i = 0; i < k; i++) {
+                nums[i] = Integer.parseInt(stk.nextToken());
+            }
+
+            mask = new int[k];
+            for (int i = 0; i < 6; i++) {
+                mask[i] = 1;
+            }
+
+            while (findPermutation()) {}
+
             sb.append('\n');
         }
-        System.out.println(sb.toString());
+        System.out.println(sb);
     }
 
-    private static void dfs(int[] set, int k, boolean[] visited, int depth, int[] array, int curr) {
-        if (depth == 6) {
-            for (int n : array) {
-                sb.append(n).append(' ');
-            }
-            sb.append('\n');
-            return;
+    static boolean findPermutation() {
+        printPermutation();
+
+        int idx = k - 2;
+        while (idx >= 0 && mask[idx] <= mask[idx + 1]) {
+            --idx;
         }
-        for (int i = curr; i < k; i++) {
-            int number = set[i];
-            if (visited[number]) {
-                continue;
+
+        if (idx < 0) {
+            return false;
+        }
+
+        for (int i = k - 1; i > idx; i--) {
+            if (mask[i] < mask[idx]) {
+                swap(i, idx);
+                break;
             }
-            array[depth] = number;
-            visited[number] = true;
-            dfs(set, k, visited, depth + 1, array, i + 1);
-            visited[number]  = false;
+        }
+
+        reverse(idx + 1);
+
+        return true;
+    }
+
+    static void printPermutation() {
+        for (int i = 0; i < k; i++) {
+            if (mask[i] == 1) {
+                sb.append(nums[i]).append(' ');
+            }
+        }
+        sb.append('\n');
+    }
+
+    static void swap(int a, int b) {
+        int tmp = mask[a];
+        mask[a] = mask[b];
+        mask[b] = tmp;
+    }
+
+    static void reverse(int left) {
+        int right = k - 1;
+        while (left < right) {
+            swap(left, right);
+            ++left;
+            --right;
         }
     }
 }
