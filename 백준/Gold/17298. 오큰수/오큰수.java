@@ -1,46 +1,35 @@
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.*;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+        BufferedReader bf = new BufferedReader(new InputStreamReader(System.in));
 
-        int n = Integer.parseInt(br.readLine());
-
-        int[] ngeList = new int[n];
-
-        // [index, value]
-        Deque<int[]> stack = new ArrayDeque<>();
-
-        StringTokenizer st = new StringTokenizer(br.readLine());
+        int n = Integer.parseInt(bf.readLine());
+        int[] arr = new int[n];
+        StringTokenizer stk = new StringTokenizer(bf.readLine());
         for (int i = 0; i < n; i++) {
-            int number = Integer.parseInt(st.nextToken());
-            if (stack.isEmpty()) {
-                stack.push(new int[] {i, number});
-                continue;
-            }
-
-            while (!stack.isEmpty() && stack.peek()[1] < number) {
-                int[] top = stack.pop();
-                ngeList[top[0]] = number;
-            }
-
-            stack.push(new int[] {i, number});
+            arr[i] = Integer.parseInt(stk.nextToken());
         }
 
-        while (!stack.isEmpty()) {
-            int[] top = stack.pop();
-            ngeList[top[0]] = -1;
+        int[] ans = new int[n];
+        Arrays.fill(ans, -1);
+
+        Deque<Integer> stack = new ArrayDeque<>();
+
+        for (int i = 0; i < n; i++) {
+            int curr = arr[i];
+            while (!stack.isEmpty() && arr[stack.peek()] < curr) {
+                ans[stack.pop()] = curr;
+            }
+            stack.push(i);
         }
 
         StringBuilder sb = new StringBuilder();
-        for (int number : ngeList) {
-            sb.append(number).append(' ');
+        for (int e : ans) {
+            sb.append(e).append(' ');
         }
-
-        bw.write(sb.toString());
-        bw.flush();
-        bw.close();
+        System.out.println(sb);
     }
 }
