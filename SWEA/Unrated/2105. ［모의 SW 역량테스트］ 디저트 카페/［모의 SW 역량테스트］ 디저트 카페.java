@@ -32,7 +32,9 @@ class Solution {
                     for (int w = 1; w < n; w++) {
                         for (int h = 1; h < n; h++) {
                             ans = Integer.max(ans, travel(r, c, w, h));
-                            ans = Integer.max(ans, travel(r, c, h, w));
+                            if (w != h) {
+                                ans = Integer.max(ans, travel(r, c, h, w));
+                            }
                         }
                     }
                 }
