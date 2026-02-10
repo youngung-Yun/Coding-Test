@@ -10,14 +10,14 @@ class Solution {
         int t = Integer.parseInt(br.readLine());
         for (int testCase = 1; testCase <= t; testCase++) {
             int n = Integer.parseInt(br.readLine());
-            // {number : pos}
-            Map<Integer, int[]> map = new HashMap<>();
+            // {number : [x, y]}
+            int[][] map = new int[n*n+1][2];
 
             for (int r = 0; r < n; r++) {
                 StringTokenizer token = new StringTokenizer(br.readLine());
                 for (int c = 0; c < n; c++) {
                     int number = Integer.parseInt(token.nextToken());
-                    map.put(number, new int[] {r, c});
+                    map[number] = new int[] {r, c};
                 }
             }
 
@@ -33,7 +33,7 @@ class Solution {
                 int current = i;
                 int next = i + 1;
                 visited[i] = true;
-                while (next <= n * n && isNearby(map.get(current), map.get(next))) {
+                while (next <= n * n && isNearby(map[current], map[next])) {
                     count += 1;
                     current += 1;
                     next += 1;
