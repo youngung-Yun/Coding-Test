@@ -1,103 +1,60 @@
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.StringTokenizer;
 
-class Solution {
+public class Solution {
 
-    final static int OFFSET = 1_000;
+	static int M = 4001; // 좌표의 크기를 2배로 만들어야 붙어있는 원자들도 충돌했을 때 겹치는 좌표가 나옴
+	// 상(y 좌표가 증가하는 방향) - 하 - 좌 - 우
+	static int[][] map = new int[M][M], deltas = { { 1, 0 }, { -1, 0 }, { 0, -1 }, { 0, 1 } };
 
-    // 좌표 기준 상, 하, 좌, 우
-    final static int[][] dirs ={ {0, 1}, {0, -1}, {-1, 0}, {1, 0} };
+	public static void main(String[] args) throws IOException {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer st = new StringTokenizer(br.readLine());
 
-    public static void main(String[] args) throws Exception {
-        BufferedReader bf = new BufferedReader(new InputStreamReader(System.in));
-        StringBuilder sb = new StringBuilder();
-        int t = Integer.parseInt(bf.readLine());
-        for (int testCase = 1; testCase <= t; ++testCase) {
-            int n = Integer.parseInt(bf.readLine());
+		int testcase = Integer.parseInt(st.nextToken());
 
-            // [x, y, dir]
-            int[][] atoms = new int[n][3];
-            int[] energies = new int[n];
-            boolean[] isDead = new boolean[n];
-            for (int i = 0; i < n; i++) {
-                StringTokenizer token = new StringTokenizer(bf.readLine());
-                int x = (Integer.parseInt(token.nextToken()) + OFFSET) * 2;
-                int y = (Integer.parseInt(token.nextToken()) + OFFSET) * 2;
-                int dir = Integer.parseInt(token.nextToken());
-                int energy = Integer.parseInt(token.nextToken());
-                atoms[i] = new int[] { x, y, dir };
-                energies[i] = energy;
-            }
+		for (int tc = 1; tc <= testcase; tc++) {
+			int n = Integer.parseInt(br.readLine());
 
-            int atomCount = n;
-            int totalEnergy = 0;
-            // 0.5초 단위로 이동하기 위해 좌표 범위를 2배로 늘림
-            int[][] grid = new int[4001][4001];
-            for (int[] row : grid) {
-                Arrays.fill(row, -1);
-            }
-            for (int d = 0; d <= 4_000; d++) {
-                for (int i = 0; i < n; i++) {
-                    if (atomCount == 0) {
-                        break;
-                    }
-                    if (isDead[i]) {
-                        continue;
-                    }
-                    // 원자 이동
-                    int[] atom = atoms[i];
-                    int nx = atom[0] + dirs[atom[2]][0];
-                    int ny = atom[1] + dirs[atom[2]][1];
+			ArrayDeque<int[]> atoms = new ArrayDeque<>();
+			int total = 0;
 
-                    // 범위 밖으로 나간 원자는 절대 충돌안함
-                    if (!isValid(nx, ny)) {
-                        --atomCount;
-                        isDead[i] = true;
-                        continue;
-                    }
+			for (int i = 0; i < n; i++) {
+				st = new StringTokenizer(br.readLine());
+				int x = (Integer.parseInt(st.nextToken()) + 1000) * 2;
+				int y = (Integer.parseInt(st.nextToken()) + 1000) * 2;
+				int d = Integer.parseInt(st.nextToken());
+				int k = Integer.parseInt(st.nextToken());
 
-                    atom[0] = nx;
-                    atom[1] = ny;
+				map[y][x] = k;
+				atoms.offer(new int[] { x, y, d, k });
+			}
 
-                    if (grid[nx][ny] == -1) {
-                        grid[nx][ny] = i;
-                    } else {
-                        // 이동 위치에 이미 다른 원자가 있을 경우
-                        int other = grid[nx][ny];
-                        if (isDead[other]) {
-                            // 부딪힌 원자 사망 처리
-                            totalEnergy += energies[i];
-                            isDead[i] = true;
-                            --atomCount;
-                        } else {
-                            // 부딪힌 원자 및 이미 존재하던 원자 사망 처리
-                            totalEnergy += energies[other];
-                            totalEnergy += energies[i];
-                            isDead[other] = true;
-                            isDead[i] = true;
-                            atomCount -= 2;
-                        }
-                    }
-                }
+			while (!atoms.isEmpty()) {
+				int[] currentAtom = atoms.poll();
 
-                if (atomCount == 0) {
-                    break;
-                }
+				if (map[currentAtom[1]][currentAtom[0]] != currentAtom[3]) {
+					total += map[currentAtom[1]][currentAtom[0]];
+					map[currentAtom[1]][currentAtom[0]] = 0;
+					continue;
+				}
 
-                for (int i = 0; i < n; i++) {
-                    int[] atom = atoms[i];
-                    grid[atom[0]][atom[1]] = -1;
-                }
-            }
-            sb.append('#').append(testCase).append(' ')
-                    .append(totalEnergy).append('\n');
-        }
-        System.out.println(sb);
-    }
+				map[currentAtom[1]][currentAtom[0]] = 0;
+				int ny = currentAtom[1] + deltas[currentAtom[2]][0];
+				int nx = currentAtom[0] + deltas[currentAtom[2]][1];
+				if (ny >= 0 && ny < M && nx >= 0 && nx < M) {
+					map[ny][nx] += currentAtom[3];
+					currentAtom[0] = nx;
+					currentAtom[1] = ny;
+					atoms.offer(currentAtom);
+				}
+			}
 
-    static boolean isValid(int x, int y) {
-        return x >= 0 && y >= 0 && x <= 4_000 && y <= 4_000;
-    }
+			System.out.println("#" + tc + " " + total);
 
+		}
+	}
 }
