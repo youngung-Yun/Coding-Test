@@ -4,23 +4,24 @@ class Solution {
     public int solution(int[] money) {
         int n = money.length;
         
-        // 마지막 집 제외한 dp
-        int[] withoutLastHome = new int[n+1];
-        withoutLastHome[1] = money[0];
-        for (int home = 2; home < n; home++) {
-            withoutLastHome[home] = Integer.max(withoutLastHome[home-1], withoutLastHome[home-2] + money[home-1]);
-        }
-        // 첫 번째 집 제외한 dp
-        int[] withoutFirstHome = new int[n+1];
-        withoutFirstHome[2] = money[1];
-        for (int home = 3; home <= n; home++) {
-            withoutFirstHome[home] = Integer.max(withoutFirstHome[home-1], withoutFirstHome[home-2] + money[home-1]);
+        // 첫 번째 집 터는 경우(마지막 집은 털 수 없음)
+        int[] dp1 = new int[n];
+        dp1[0] = money[0];
+        dp1[1] = Integer.max(money[0], money[1]);
+        for (int home = 2; home < n - 1; home++) {
+            dp1[home] = Integer.max(dp1[home-1], dp1[home-2] + money[home]);
         }
         
-        int max = 0;
-        for (int i = 0; i <= n; i++) {
-            max = Integer.max(max, Integer.max(withoutLastHome[i], withoutFirstHome[i]));
+        
+        // 첫 번째 집 안터는 경우 (마지막 집을 털 수 있음)
+        int[] dp2 = new int[n];
+        dp2[0] = 0;
+        dp2[1] = money[1];
+        for (int home = 2; home < n; home++) {
+            dp2[home] = Integer.max(dp2[home-1], dp2[home-2] + money[home]);
         }
-        return max;
+        
+        int ans = Integer.max(dp1[n-2], dp2[n-1]);
+        return ans;
     }
 }
