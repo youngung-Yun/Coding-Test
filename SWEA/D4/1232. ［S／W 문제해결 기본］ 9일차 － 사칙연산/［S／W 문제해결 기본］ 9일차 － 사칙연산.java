@@ -39,7 +39,7 @@ class Solution {
     }
     static int operate(int now) {
         Node node = tree.get(now);
-        if (node.leftChild == -1) {
+        if (node.leftChild == NONE) {
             return Integer.parseInt(node.value);
         }
 
