@@ -10,9 +10,15 @@ class Solution {
         int t = Integer.parseInt(bf.readLine());
         for (int testcase = 1; testcase <= t; ++testcase) {
             int n = Integer.parseInt(bf.readLine());
-            int[] array = Arrays.stream(bf.readLine().split(" ")).mapToInt(Integer::parseInt).sorted().toArray();
+            int[] array = Arrays.stream(bf.readLine().split(" ")).mapToInt(Integer::parseInt).toArray();
 
-            int ans = array[0] * array[n-1];
+            int min = array[0];
+            int max = array[0];
+            for (int number : array) {
+                min = Integer.min(min, number);
+                max = Integer.max(max, number);
+            }
+            int ans = min * max;
             sb.append('#').append(testcase).append(' ')
                     .append(ans).append('\n');
         }
