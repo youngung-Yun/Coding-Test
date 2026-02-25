@@ -37,28 +37,30 @@ public class Main {
          * 2. 두 종류의 구역이 같은 구역들과 연결되어 있는지 확인. 연결 안되어있으면 불가능
          * 3. 인구수 차이 구함
          */
-        dfs(new ArrayList<>(), new ArrayList<>(), 1, n);
+        for (int a = 1; a < (0b1 << n) - 1; a++) {
+            List<Integer> groupA = getList(a);
+            int b = ~a;
+            List<Integer> groupB = getList(b);
+
+            if (isConnectedAll(groupA) && isConnectedAll(groupB)) {
+                canDivide = true;
+                int diff = Math.abs(getPopulation(groupA) - getPopulation(groupB));
+                ans = Integer.min(ans, diff);
+            }
+        }
+
         System.out.println(canDivide ? ans : -1);
     }
 
-    static void dfs(List<Integer> red, List<Integer> blue, int number, int n) {
-        if (number > n) {
-            if (red.isEmpty() || blue.isEmpty()) {
-                return;
+    static List<Integer> getList(int bit) {
+        List<Integer> group = new ArrayList<>();
+        for (int i = 0; i < n; i++) {
+            if ((bit & (0b1 << i)) != 0) {
+                // 노드는 1번부터임
+                group.add(i + 1);
             }
-            if (isConnectedAll(red) && isConnectedAll(blue)) {
-                canDivide = true;
-                ans = Integer.min(ans, Math.abs(getPopulation(red) - getPopulation(blue)));
-            }
-            return;
         }
-
-        red.add(number);
-        dfs(red, blue, number + 1, n);
-        red.remove(red.size() - 1);
-        blue.add(number);
-        dfs(red, blue, number + 1, n);
-        blue.remove(blue.size() - 1);
+        return group;
     }
 
     static boolean isConnectedAll(List<Integer> nodes) {
