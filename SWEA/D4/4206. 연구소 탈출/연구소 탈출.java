@@ -4,6 +4,7 @@ import java.util.*;
 
 public class Solution {
 
+    final static int INF = 10 * 10;
     final static int[][] dirs = { {0, 1}, {1, 0}, {0, -1}, {-1, 0} };
     static int r;
     static int c;
@@ -36,114 +37,80 @@ public class Solution {
                     }
                 }
             }
+            int[][] virusMove = moveVirus(map, virus);
+            int ans = INF;
+
+            int[][] times = new int[r][c];
+            for (int[] row : times) {
+                Arrays.fill(row, INF);
+            }
+            boolean canEscape = false;
+
+            Queue<int[]> queue = new ArrayDeque<>();
+            queue.offer(new int[] {startX, startY});
+            times[startX][startY] = 0;
+            while (!queue.isEmpty()) {
+                int[] now = queue.poll();
+                int nextTime = times[now[0]][now[1]] + 1;
+                for (int[] dir : dirs) {
+                    int nx = now[0] + dir[0];
+                    int ny = now[1] + dir[1];
+                    // 탈출
+                    if (!isValidPos(nx, ny)) {
+                        canEscape = true;
+                        ans = nextTime;
+                        break;
+                    }
+                    if (map[nx][ny] != 0 || times[nx][ny] != INF || nextTime >= virusMove[nx][ny]) {
+                        continue;
+                    }
+                    times[nx][ny] = nextTime;
+                    queue.offer(new int[] {nx, ny});
+                }
+            }
 
             sb.append('#').append(testcase).append(' ');
-
-            boolean canReachToPlayer = canReachToPlayer(map, virus, startX, startY);
-            boolean canFindEscapePath = canFindEscapePath(map, startX, startY);
-            
-            // 바이러스가 닿을 수 없고 탈출 불가능
-            if (!canReachToPlayer && !canFindEscapePath) {
-                sb.append("CANNOT ESCAPE").append('\n');
-                continue;
-            }
-
-            int ans = -1;
-            boolean becomeZombie = false;
-            Queue<int[]> virusQueue = new ArrayDeque<>();
-            for (int[] v : virus) {
-                virusQueue.offer(v);
-            }
-            boolean[][] visited = new boolean[r][c];
-            Queue<int[]> moveQueue = new ArrayDeque<>();
-            moveQueue.offer(new int[] {startX, startY});
-            visited[startX][startY] = true;
-
-            for (int time = 1; time <= r * c; time++) {
-                if (ans != -1) {
-                    break;
-                } else if (moveQueue.isEmpty()) {
-                    becomeZombie = true;
-                    break;
-                }
-
-                // 바이러스 이동
-                int virusCount = virusQueue.size();
-                while (virusCount-- > 0) {
-                    int[] now = virusQueue.poll();
-                    for (int[] dir : dirs) {
-                        int nx = now[0] + dir[0];
-                        int ny = now[1] + dir[1];
-                        if (!isValidPos(nx, ny)) {
-                            continue;
-                        }
-                        if (map[nx][ny] != 0) {
-                            continue;
-                        }
-                        map[nx][ny] = 2;
-                        virusQueue.offer(new int[] {nx ,ny});
-                    }
-                }
-
-                // 이동
-                int moveCount = moveQueue.size();
-                while (moveCount-- > 0) {
-                    int[] now = moveQueue.poll();
-                    for (int[] dir : dirs) {
-                        int nx = now[0] + dir[0];
-                        int ny = now[1] + dir[1];
-                        // 탈출
-                        if (!isValidPos(nx, ny)) {
-                            ans = time;
-                            break;
-                        }
-                        if (map[nx][ny] != 0 || visited[nx][ny]) {
-                            continue;
-                        }
-
-                        visited[nx][ny] = true;
-                        moveQueue.offer(new int[] {nx, ny});
-                    }
-                }
-            }
-
-            if (becomeZombie) {
-                sb.append("ZOMBIE").append('\n');
+            if (canEscape) {
+                sb.append(ans);
+            } else if (virusMove[startX][startY] == INF) {
+                sb.append("CANNOT ESCAPE");
             } else {
-                sb.append(ans).append('\n');
+                sb.append("ZOMBIE");
             }
+            sb.append('\n');
         }
         System.out.println(sb);
     }
 
-    private static boolean canReachToPlayer(int[][] map, List<int[]> virus, int x, int y) {
+    private static int[][] moveVirus(int[][] map, List<int[]> virus) {
+        int[][] virusMove = new int[r][c];
+        for (int[] row : virusMove) {
+            Arrays.fill(row, INF);
+        }
 
         Queue<int[]> queue = new ArrayDeque<>();
-        boolean[][] visited = new boolean[r][c];
         for (int[] v : virus) {
             queue.offer(v);
-            visited[v[0]][v[1]] = true;
+            virusMove[v[0]][v[1]] = 0;
         }
 
         while (!queue.isEmpty()) {
             int[] now = queue.poll();
-            if (now[0] == x && now[1] == y) {
-                return true;
-            }
             for (int[] dir : dirs) {
                 int nx = now[0] + dir[0];
                 int ny = now[1] + dir[1];
                 if (!isValidPos(nx, ny)) {
                     continue;
                 }
-                if (map[nx][ny] == 1 || visited[nx][ny]) {
+                if (map[nx][ny] == 1 || virusMove[nx][ny] != INF) {
                     continue;
                 }
-                visited[nx][ny] = true;
+                virusMove[nx][ny] = virusMove[now[0]][now[1]] + 1;
                 queue.offer(new int[] {nx, ny});
             }
         }
-        return false;
+
+        return virusMove;
     }
 
     private static boolean canFindEscapePath(int[][] map, int x, int y) {
