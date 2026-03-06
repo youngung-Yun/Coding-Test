@@ -1,98 +1,88 @@
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.util.*;
+import java.io.*;
+
 public class Main {
-
-    final static int MAX = 10 * 100;
-    static int[] population;
-    static int[][] adj;
-    static int ans = MAX;
-    static boolean canDivide = false;
-    static int n;
-
-    public static void main(String[] args) throws Exception {
-
-        BufferedReader bf = new BufferedReader(new InputStreamReader(System.in));
-        StringBuilder sb = new StringBuilder();
-
-        n = Integer.parseInt(bf.readLine());
-        population = new int[n+1];
-        StringTokenizer token = new StringTokenizer(bf.readLine());
-        for (int i = 1; i <= n; i++) {
-            population[i] = Integer.parseInt(token.nextToken());
-        }
-
-        adj = new int[n+1][];
-        for (int i = 1; i <= n; i++) {
-            token = new StringTokenizer(bf.readLine());
-            int c = Integer.parseInt(token.nextToken());
-            adj[i] = new int[c];
-            for (int j = 0; j < c; j++) {
-                adj[i][j] = Integer.parseInt(token.nextToken());
-            }
-        }
-
-        /*
-         * 1. 부분집합으로 각 구역을 두 종류로 나눔
-         * 2. 두 종류의 구역이 같은 구역들과 연결되어 있는지 확인. 연결 안되어있으면 불가능
-         * 3. 인구수 차이 구함
-         */
-        for (int a = 1; a < (0b1 << n) - 1; a++) {
-            List<Integer> groupA = getList(a);
-            int b = ~a;
-            List<Integer> groupB = getList(b);
-
-            if (isConnectedAll(groupA) && isConnectedAll(groupB)) {
-                canDivide = true;
-                int diff = Math.abs(getPopulation(groupA) - getPopulation(groupB));
-                ans = Integer.min(ans, diff);
-            }
-        }
-
-        System.out.println(canDivide ? ans : -1);
-    }
-
-    static List<Integer> getList(int bit) {
-        List<Integer> group = new ArrayList<>();
-        for (int i = 0; i < n; i++) {
-            if ((bit & (0b1 << i)) != 0) {
-                // 노드는 1번부터임
-                group.add(i + 1);
-            }
-        }
-        return group;
-    }
-
-    static boolean isConnectedAll(List<Integer> nodes) {
-        boolean[] isConnected = new boolean[n+1];
-        Queue<Integer> queue = new ArrayDeque<>();
-        queue.offer(nodes.get(0));
-        isConnected[nodes.get(0)] = true;
-
-        while (!queue.isEmpty()) {
-            int current = queue.poll();
-            for (int node : adj[current]) {
-                if (isConnected[node] || nodes.indexOf(node) == -1) {
-                    continue;
-                }
-                isConnected[node] = true;
-                queue.offer(node);
-            }
-        }
-
-        for (int node : nodes) {
-            if (!isConnected[node]) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    static int getPopulation(List<Integer> nodes) {
-        int sum = 0;
-        for (int i : nodes) {
-            sum += population[i];
-        }
-        return sum;
-    }
-}
+	
+	static List<Integer>[] list;
+	static int n;
+	static boolean[] select;
+	static int result;
+	static int[] pop;
+	public static void main(String[] args) throws IOException {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringBuilder sb = new StringBuilder();
+		
+		n  =Integer.parseInt(br.readLine());
+		list = new ArrayList[n+1];
+		select = new boolean[n+1];
+		pop = new int[n+1];
+		result = Integer.MAX_VALUE;
+		StringTokenizer st = new StringTokenizer(br.readLine());
+		for(int i=1; i<=n;i++) {
+			list[i] = new ArrayList<>();
+			pop[i] = Integer.parseInt(st.nextToken());
+		}
+		for(int i=1; i<=n;i++) {
+			st = new StringTokenizer(br.readLine());
+			int cnt = Integer.parseInt(st.nextToken());
+			for(int j=0; j<cnt;j++) {
+				list[i].add(Integer.parseInt(st.nextToken()));
+			}
+		}
+		subset(1);
+			if(result == Integer.MAX_VALUE)System.out.println(-1);
+		else System.out.println(result);
+		
+	}
+	static void subset(int cnt) {
+		if(cnt==n+1) {
+			List<Integer> g1 = new ArrayList<>();
+			List<Integer> g2 = new ArrayList<>();
+			
+			for(int i=1; i<=n;i++) {
+			if(select[i])g1.add(i);
+			else g2.add(i);	
+			}
+			if(g1.size()==0 || g2.size()==0 ) return;
+			if(bfs(g1)&&bfs(g2)) {
+				int g1Sum=0;
+				int g2Sum=0;
+				for(int i=0; i<g1.size();i++) {
+					g1Sum += pop[g1.get(i)];
+				}
+				for(int i=0; i<g2.size();i++) {
+					g2Sum += pop[g2.get(i)];
+				}
+				result = Math.min(result, Math.abs(g1Sum-g2Sum));
+			}
+			
+			return;
+		}
+		select[cnt]  =true;
+		subset(cnt+1);
+		select[cnt]  =false;
+		subset(cnt+1);
+	}
+	static boolean bfs(List<Integer> group) {
+		Deque<Integer> q = new ArrayDeque<>();
+		boolean[] visit = new boolean[n+1];
+		q.add(group.get(0));
+		visit[group.get(0)] = true;
+		int count=1;
+		while(!q.isEmpty()) {
+			int cur = q.poll();
+			
+			for(int a : list[cur]) {
+				if(!visit[a]&&group.contains(a)) {
+					count++;
+					q.add(a);
+					visit[a] = true;
+				}
+			}
+		}
+		return count==group.size();
+	}
+	
+		
+	}
+	
