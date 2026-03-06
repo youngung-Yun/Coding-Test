@@ -1,56 +1,40 @@
-import java.io.*;
-import java.util.*;
 
+
+import java.util.*;
+import java.io.*;
 public class Solution {
 
-    public static void main(String[] args) throws Exception {
-        BufferedReader bf = new BufferedReader(new InputStreamReader(System.in));
-        StringBuilder sb = new StringBuilder();
+	public static void main(String[] args) throws IOException {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringBuilder sb = new StringBuilder();
+		
+		int t = Integer.parseInt(br.readLine());
+		for(int test =1 ;test<=t;test++) {
+			int n = Integer.parseInt(br.readLine());
+			int height =0;
+			int[] tree= new int[n];
+			int max=0;
+			
+			StringTokenizer st = new StringTokenizer(br.readLine());
+			for(int i=0; i<n;i++) {
+				tree[i] = Integer.parseInt(st.nextToken());
+				height = Math.max(tree[i], height);
+			}
+			int one =0;
+			int two=0;
+			for(int i=0; i<n;i++) {
+				if(tree[i]==height)continue;
+				int diff = height - tree[i];
+				one +=diff%2;
+				two += diff/2;
+			}
+			while(two>one+1) {
+				two--;
+				one+=2;
+			}
+			System.out.println("#"+test+" "+Math.max(one*2-1, two*2));
+		}
 
-        int t = Integer.parseInt(bf.readLine());
-        for (int testCase = 1; testCase <= t; ++testCase) {
-            int n = Integer.parseInt(bf.readLine());
-            int maxHeight = 0;
-            int[] arr = new int[n];
-            StringTokenizer token = new StringTokenizer(bf.readLine());
-            for (int i = 0; i < n; i++) {
-                int height = Integer.parseInt(token.nextToken());
-                arr[i] = height;
-                maxHeight = Integer.max(maxHeight, height);
-            }
+	}
 
-            int oddCount = 0;
-            int difference = 0;
-            for (int i = 0; i < n; i++) {
-                int diff = maxHeight - arr[i];
-                oddCount += (diff % 2);
-                difference += diff;
-            }
-
-            // 홀수 차이 제거
-            difference -= (oddCount * 3);
-
-            // 홀수가 더 많으면 마지막 짝수날 제외
-            if (difference < 0) {
-                sb.append('#').append(testCase).append(' ')
-                        .append(oddCount * 2 - 1).append('\n');
-                continue;
-            }
-
-            int ans = oddCount * 2;
-            // 4일씩 묶어 처리
-            ans += (difference / 6) * 4;
-            difference %= 6;
-            // 2 남으면 홀수날 생략 후 짝수날에 물 주기
-            if (difference == 2) {
-                ans += 2;
-            // 4 남으면 마지막 짝수날 제외
-            } else if (difference == 4) {
-                ans += 3;
-            }
-            sb.append('#').append(testCase).append(' ')
-                    .append(ans).append('\n');
-        }
-        System.out.println(sb);
-    }
 }
