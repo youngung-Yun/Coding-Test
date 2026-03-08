@@ -26,7 +26,7 @@ public class Main {
 
         // 출발지와 도착지가 가까운 순 정렬, 같으면 가까운 마을부터
         Arrays.sort(parcels, (a1, a2) -> {
-            int compared = Integer.compare(a1[1] - a1[0], a2[1] - a2[0]);
+            int compared = Integer.compare(a1[1], a2[1]);
             if (compared == 0) {
                 return Integer.compare(a1[0], a2[0]);
             }
@@ -49,6 +49,7 @@ public class Main {
             }
             ans += maxLoaded;
         }
+
         System.out.println(ans);
     }
 }
