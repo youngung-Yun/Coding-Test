@@ -17,7 +17,6 @@ public class Main {
         int maxDay = getDay(12, 1);
 
         int[][] flowers = new int[n][2];
-        int[] flowerCount = new int[year];
 
         for (int i = 0; i < n; i++) {
             StringTokenizer stk = new StringTokenizer(bf.readLine());
@@ -26,35 +25,44 @@ public class Main {
             int endMonth = Integer.parseInt(stk.nextToken());
             int endDay = Integer.parseInt(stk.nextToken());
 
-            int start = Integer.max(minDay, getDay(startMonth, startDay));
-            int end = Integer.min(maxDay, getDay(endMonth, endDay));
+            int start = getDay(startMonth, startDay);
+            int end = getDay(endMonth, endDay);
             flowers[i] = new int[] {start, end};
-
-            for (int day = start; day < end; day++) {
-                ++flowerCount[day];
-            }
         }
 
-        Arrays.sort(flowers, (a1, a2) -> Integer.compare(a1[1], a2[1]));
+        Arrays.sort(flowers, (a1, a2) -> {
+            if (a1[0] == a2[0]) {
+                return Integer.compare(a1[1], a2[1]);
+            }
+            return Integer.compare(a1[0], a2[0]);
+        });
 
-        // 매일 피어있는 것이 가능한지 확인
-        for (int day = minDay; day < maxDay; day++) {
-            if (flowerCount[day] == 0) {
+        int currentEnd = minDay;
+        int ans = 0;
+        int idx = 0;
+        int maxEnd = 0;
+
+        while (currentEnd < maxDay) {
+            boolean found = false;
+
+            // 현재 날짜 이전에 피는 꽃 중 가장 늦게 지는 꽃 선택
+            while (idx < n && flowers[idx][0] <= currentEnd) {
+                if (maxEnd < flowers[idx][1]) {
+                    maxEnd = flowers[idx][1];
+                    found = true;
+                }
+                ++idx;
+            }
+
+            if (found) {
+                ++ans;
+                currentEnd = maxEnd;
+            } else {
                 System.out.println(0);
                 return;
             }
         }
-        int ans = n;
-        for (int i = 0; i < n; i++) {
-            int[] flower = flowers[i];
-            if (!canRemove(flowerCount, flower)) {
-                continue;
-            }
-            for (int day = flower[0]; day < flower[1]; day++) {
-                --flowerCount[day];
-            }
-            --ans;
-        }
+
         System.out.println(ans);
     }
 
@@ -65,16 +73,5 @@ public class Main {
         }
         result += day;
         return result;
-    }
-
-    private static boolean canRemove(int[] flowerCount, int[] flower) {
-        int start = flower[0];
-        int end = flower[1];
-        for (int day = start; day < end; day++) {
-            if (flowerCount[day] == 1) {
-                return false;
-            }
-        }
-        return true;
     }
 }
