@@ -29,10 +29,7 @@ public class Main {
                 while (seq[left] % 2 == 0) {
                     ++left;
                 }
-
-                if (left < right) {
-                    ++left;
-                }
+                ++left;
                 --oddCount;
             }
 
