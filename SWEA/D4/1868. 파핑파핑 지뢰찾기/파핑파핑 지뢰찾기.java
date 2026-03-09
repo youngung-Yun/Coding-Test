@@ -1,15 +1,12 @@
 import java.util.*;
-import java.io.FileInputStream;
 
-class Solution
-{
-    private static int[][] around = new int[][] {{-1, 0}, {-1, 1}, {-1, -1}, {0, 1}, {0, -1}, {1, 0}, {1, 1}, {1, -1}};
+public class Solution {
 
-    public static void main(String args[]) throws Exception
-    {
+    private final static int[][] around = new int[][] {{-1, 0}, {-1, 1}, {-1, -1}, {0, 1}, {0, -1}, {1, 0}, {1, 1}, {1, -1}};
+
+    public static void main(String args[]) throws Exception {
         Scanner sc = new Scanner(System.in);
-        int T;
-        T=sc.nextInt();
+        int T = sc.nextInt();
         StringBuilder sb = new StringBuilder();
         for(int test_case = 1; test_case <= T; test_case++)
         {
@@ -23,7 +20,7 @@ class Solution
             }
             boolean[][] visited = new boolean[n][n];
             // 1. 0인 칸(근처에 지뢰가 없는 칸)들을 클릭하여 적은 횟수로 최대한 숫자를 많이 표시함
-            // 2.  0칸과 이어져 있지 않은 나머지 칸들은 한 칸당 한 번씩 클릭해야 함
+            // 2. 0칸과 이어져 있지 않은 나머지 칸들은 한 칸당 한 번씩 클릭해야 함
             int answer = 0;
             for (int row = 0; row < n; row++) {
                 for (int col = 0; col < n; col++) {
@@ -36,7 +33,7 @@ class Solution
                     if (getAroundMineCount(board, row, col, n) > 0) {
                         continue;
                     }
-					// 1                    
+                    // 1
                     ++answer;
                     Deque<int[]> queue = new ArrayDeque<>();
                     queue.offerLast(new int[] {row ,col});
@@ -64,7 +61,7 @@ class Solution
                     }
                 }
             }
-			// 2            
+            // 2
             for (int row = 0; row < n; row++) {
                 for (int col = 0; col < n; col++) {
                     if (board[row][col] == '*' || visited[row][col]) {
