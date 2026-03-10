@@ -1,75 +1,92 @@
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.*;
-import java.util.stream.IntStream;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.StringTokenizer;
 
-class Solution {
+public class Solution {
 
-    static int[] parent;
+    private static int[] parent;
 
     public static void main(String[] args) throws Exception {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        BufferedReader bf = new BufferedReader(new InputStreamReader(System.in));
         StringBuilder sb = new StringBuilder();
-        int t = Integer.parseInt(br.readLine());
-        for (int testCase = 1; testCase <= t; testCase++) {
-            StringTokenizer token = new StringTokenizer(br.readLine());
-            int v = Integer.parseInt(token.nextToken());
-            int e = Integer.parseInt(token.nextToken());
 
-            parent = IntStream.rangeClosed(0, v).toArray();
+        int t = Integer.parseInt(bf.readLine());
+
+        for (int testcase = 1; testcase <= t; testcase++) {
+            StringTokenizer stk = new StringTokenizer(bf.readLine());
+            int v = Integer.parseInt(stk.nextToken());
+            int e = Integer.parseInt(stk.nextToken());
+
+            parent = initParent(v);
 
             int[][] edges = new int[e][3];
-            for (int i = 0; i < e; i++) {
-                token = new StringTokenizer(br.readLine());
-                int a = Integer.parseInt(token.nextToken());
-                int b = Integer.parseInt(token.nextToken());
-                int c = Integer.parseInt(token.nextToken());
-                // [start, end, cost]
-                edges[i] = new int[] {a, b, c};
+
+            for (int edge = 0; edge < e; edge++) {
+                stk = new StringTokenizer(bf.readLine());
+                int a = Integer.parseInt(stk.nextToken());
+                int b = Integer.parseInt(stk.nextToken());
+                int c = Integer.parseInt(stk.nextToken());
+
+                edges[edge] = new int[] {a, b, c};
             }
+
             Arrays.sort(edges, Comparator.comparingInt(edge -> edge[2]));
 
-            long answer = 0L;
             int count = 0;
+            long totalCost = 0L;
             for (int[] edge : edges) {
-                // 같은 집합이 아닌 경우
-                if (union(edge[0], edge[1])) {
-                    answer += edge[2];
-                    count += 1;
+                int a = edge[0];
+                int b = edge[1];
+                int c = edge[2];
+                if (union(a, b)) {
+                    totalCost += c;
+                    ++count;
                 }
-                // 간선 v - 1개 모두 선택했으면 종료
+
                 if (count == v - 1) {
                     break;
                 }
             }
 
-            sb.append('#').append(testCase).append(' ').append(answer).append('\n');
+            sb.append('#').append(testcase).append(' ')
+                    .append(totalCost).append('\n');
         }
         sb.deleteCharAt(sb.length() - 1);
         System.out.println(sb);
     }
 
-    static int find(int x) {
-        if (x != parent[x]) {
-            parent[x] = find(parent[x]);
+    private static int find(int x) {
+        if (parent[x] < 0) {
+            return x;
         }
+        parent[x] = find(parent[x]);
         return parent[x];
     }
 
-    static boolean union(int x, int y) {
-        int parentX = find(x);
-        int parentY = find(y);
+    private static boolean union(int x, int y) {
+        int xParent = find(x);
+        int yParent = find(y);
 
-        // 같은 집합
-        if (parentX == parentY) {
+        if (xParent == yParent) {
             return false;
         }
 
-        if (parentX < parentY) {
-            parent[parentY] = parentX;
+        if (-parent[xParent] >= -parent[yParent]) {
+            parent[xParent] += parent[yParent];
+            parent[yParent] = xParent;
         } else {
-            parent[parentX] = parentY;
+            parent[yParent] += parent[xParent];
+            parent[xParent] = yParent;
         }
+
         return true;
+    }
+
+    private static int[] initParent(int v) {
+        int[] parent = new int[v+1];
+        Arrays.fill(parent, -1);
+        return parent;
     }
 }
