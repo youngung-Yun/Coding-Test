@@ -1,12 +1,11 @@
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.Arrays;
-import java.util.Comparator;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.PriorityQueue;
 import java.util.StringTokenizer;
 
 public class Solution {
-
-    private static int[] parent;
 
     public static void main(String[] args) throws Exception {
         BufferedReader bf = new BufferedReader(new InputStreamReader(System.in));
@@ -14,79 +13,61 @@ public class Solution {
 
         int t = Integer.parseInt(bf.readLine());
 
-        for (int testcase = 1; testcase <= t; testcase++) {
+        for (int tc = 1; tc <= t; tc++) {
             StringTokenizer stk = new StringTokenizer(bf.readLine());
+
             int v = Integer.parseInt(stk.nextToken());
             int e = Integer.parseInt(stk.nextToken());
 
-            parent = initParent(v);
+            List<List<int[]>> adj = initAdj(v);
 
-            int[][] edges = new int[e][3];
-
-            for (int edge = 0; edge < e; edge++) {
+            for (int i = 0; i < e; i++) {
                 stk = new StringTokenizer(bf.readLine());
                 int a = Integer.parseInt(stk.nextToken());
                 int b = Integer.parseInt(stk.nextToken());
                 int c = Integer.parseInt(stk.nextToken());
 
-                edges[edge] = new int[] {a, b, c};
+                adj.get(a).add(new int[] {b, c});
+                adj.get(b).add(new int[] {a, c});
             }
 
-            Arrays.sort(edges, Comparator.comparingInt(edge -> edge[2]));
+            boolean[] visited = new boolean[v+1];
+            long totalCost = 0L;
+
+            // [dest, cost]
+            PriorityQueue<int[]> pq = new PriorityQueue<>((a1, a2) -> Integer.compare(a1[1], a2[1]));
+            pq.add(new int[] {1, 0});
 
             int count = 0;
-            long totalCost = 0L;
-            for (int[] edge : edges) {
-                int a = edge[0];
-                int b = edge[1];
-                int c = edge[2];
-                if (union(a, b)) {
-                    totalCost += c;
-                    ++count;
+            while (count < v) {
+                int[] edge = pq.poll();
+                int dest = edge[0];
+                int cost = edge[1];
+                if (visited[dest]) {
+                    continue;
                 }
 
-                if (count == v - 1) {
-                    break;
+                visited[dest] = true;
+                ++count;
+                totalCost += cost;
+
+                for (int[] next : adj.get(dest)) {
+                    pq.add(next);
                 }
             }
 
-            sb.append('#').append(testcase).append(' ')
+            sb.append('#').append(tc).append(' ')
                     .append(totalCost).append('\n');
         }
         sb.deleteCharAt(sb.length() - 1);
         System.out.println(sb);
     }
 
-    private static int find(int x) {
-        if (parent[x] < 0) {
-            return x;
+    private static List<List<int[]>> initAdj(int v) {
+        List<List<int[]>> adj = new ArrayList<>();
+        for (int i = 0; i <= v; i++) {
+            adj.add(new ArrayList<>());
         }
-        parent[x] = find(parent[x]);
-        return parent[x];
-    }
-
-    private static boolean union(int x, int y) {
-        int xParent = find(x);
-        int yParent = find(y);
-
-        if (xParent == yParent) {
-            return false;
-        }
-
-        if (-parent[xParent] >= -parent[yParent]) {
-            parent[xParent] += parent[yParent];
-            parent[yParent] = xParent;
-        } else {
-            parent[yParent] += parent[xParent];
-            parent[xParent] = yParent;
-        }
-
-        return true;
-    }
-
-    private static int[] initParent(int v) {
-        int[] parent = new int[v+1];
-        Arrays.fill(parent, -1);
-        return parent;
+        return adj;
     }
 }
