@@ -4,8 +4,6 @@ import java.util.*;
 
 public class Solution {
 
-    static int[] parent;
-
     public static void main(String[] args) throws Exception {
         BufferedReader bf = new BufferedReader(new InputStreamReader(System.in));
         StringBuilder sb = new StringBuilder();
@@ -14,8 +12,6 @@ public class Solution {
 
         for (int testcase = 1; testcase <= t; testcase++) {
             int n = Integer.parseInt(bf.readLine());
-
-            parent = initParent(n);
 
             double[] islandX = new double[n];
             double[] islandY = new double[n];
@@ -32,59 +28,56 @@ public class Solution {
 
             double e = Double.parseDouble(bf.readLine());
 
+            List<List<Edge>> adj = new ArrayList<>();
+            for (int i = 0; i <= n; i++) {
+                adj.add(new ArrayList<>());
+            }
 
-            List<Edge> edges = new ArrayList<>();
             for (int a = 0; a < n; a++) {
                 for (int b = 0; b < n; b++) {
                     if (a == b) {
                         continue;
                     }
                     double cost = computeCost(islandX[a], islandY[a], islandX[b], islandY[b], e);
-
-                    edges.add(new Edge(a, b, cost));
+                    adj.get(a).add(new Edge(b, cost));
+                    adj.get(b).add(new Edge(a, cost));
                 }
             }
-            edges.sort(Comparator.comparingDouble(e2 -> e2.cost));
 
+            boolean[] visited = new boolean[n+1];
             int count = 0;
+            PriorityQueue<Edge> pq = new PriorityQueue<>((e1, e2) -> Double.compare(e1.cost, e2.cost));
+            pq.add(new Edge(0, 0.0));
+
             double totalCost = 0.0;
-            for (Edge edge : edges) {
-                if (!union(edge.a, edge.b)) {
+            while (count < n) {
+                Edge now = pq.poll();
+                if (visited[now.dest]) {
                     continue;
                 }
 
+                visited[now.dest] = true;
                 ++count;
-                totalCost += edge.cost;
+                totalCost += now.cost;
 
-                if (count == n - 1) {
-                    break;
+                for (Edge edge : adj.get(now.dest)) {
+                    pq.add(edge);
                 }
             }
-
-            sb.append('#').append(testcase).append(' ')
-                    .append(Math.round(totalCost)).append('\n');
+            sb.append(String.format("#%d %d", testcase, Math.round(totalCost))).append('\n');
         }
         sb.deleteCharAt(sb.length() - 1);
         System.out.println(sb);
     }
 
     private static class Edge {
-        public int a;
-        public int b;
+        public int dest;
         public double cost;
 
-        public Edge(int a, int b, double cost) {
-            this.a = a;
-            this.b = b;
+        public Edge(int dest, double cost) {
+            this.dest = dest;
             this.cost = cost;
         }
-    }
-
-    private static int[] initParent(int n) {
-        int[] parent = new int[n];
-        Arrays.fill(parent, -1);
-
-        return parent;
     }
 
     private static double computeCost(double ax, double ay, double bx, double by, double e) {
@@ -94,34 +87,5 @@ public class Solution {
         double distancePower = deltaX * deltaX + deltaY * deltaY;
 
         return e * distancePower;
-    }
-
-
-    private static int find(int x) {
-        if (parent[x] < 0) {
-            return x;
-        }
-
-        parent[x] = find(parent[x]);
-
-        return parent[x];
-    }
-
-    private static boolean union(int x, int y) {
-        int xParent = find(x);
-        int yParent = find(y);
-
-        if (xParent == yParent) {
-            return false;
-        }
-
-        if (parent[xParent] < parent[yParent]) {
-            parent[xParent] += parent[yParent];
-            parent[yParent] = xParent;
-        } else {
-            parent[yParent] += parent[xParent];
-            parent[xParent] = yParent;
-        }
-        return true;
     }
 }
