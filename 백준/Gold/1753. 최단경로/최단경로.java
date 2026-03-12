@@ -1,79 +1,75 @@
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.*;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.stream.Collectors;
 
 public class Main {
 
+    final static int INF = 300_000 * 10;
+
+    static int[] distance;
+    // [dest, weight]
+    static List<List<int[]>> adj;
+
     public static void main(String[] args) throws Exception {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+        BufferedReader bf = new BufferedReader(new InputStreamReader(System.in));
+
+        StringTokenizer stk = new StringTokenizer(bf.readLine());
+        int v = Integer.parseInt(stk.nextToken());
+        int e = Integer.parseInt(stk.nextToken());
+
+        initAdj(v);
+        distance = new int[v+1];
+        Arrays.fill(distance, INF);
+
+        int start = Integer.parseInt(bf.readLine());
+
+        for (int edge = 0; edge < e; edge++) {
+            stk = new StringTokenizer(bf.readLine());
+            int src = Integer.parseInt(stk.nextToken());
+            int dest = Integer.parseInt(stk.nextToken());
+            int weight = Integer.parseInt(stk.nextToken());
+            adj.get(src).add(new int[] {dest, weight});
+        }
+
+        findShortestPath(start, v);
+
         StringBuilder sb = new StringBuilder();
-
-        String[] input = br.readLine().split(" ");
-        int v = Integer.parseInt(input[0]);
-        int e = Integer.parseInt(input[1]);
-        List<Node>[] adjacency = new ArrayList[v + 1];
-        // 인접 리스트 초기화
-        for (int i = 1; i <= v; i++) {
-            adjacency[i] = new ArrayList<>();
+        for (int node = 1; node <= v; node++) {
+            sb.append(distance[node] == INF ? "INF" : distance[node]).append('\n');
         }
-        
-        int startEdge = Integer.parseInt(br.readLine());
-
-        for (int i = 0; i < e; i++) {
-            String[] edge = br.readLine().split(" ");
-            int start = Integer.parseInt(edge[0]);
-            int dest = Integer.parseInt(edge[1]);
-            int cost = Integer.parseInt(edge[2]);
-            adjacency[start].add(new Node(dest, cost));
-        }
-
-        int[] dist = new int[v + 1];
-        for (int i = 0; i < dist.length; i++) {
-            dist[i] = Integer.MAX_VALUE;
-        }
-
-        dist[startEdge] = 0;
-        
-        dijkstra(startEdge, adjacency, dist);
-        
-        for (int i = 1; i <= v; i++) {
-            sb.append(dist[i] == Integer.MAX_VALUE ? "INF" : dist[i]).append('\n');
-        }
-
-        bw.write(sb.toString());
-        bw.flush();
+        System.out.println(sb);
     }
 
-    private static void dijkstra(int start, List<Node>[] adjacency, int[] dist) {
-        PriorityQueue<Node> priorityQueue = new PriorityQueue<>((o1, o2) -> Integer.compare(o1.cost, o2.cost));
-        priorityQueue.add(new Node(start, 0));
+    private static void findShortestPath(int start, int v) {
+        distance[start] = 0;
+        PriorityQueue<int[]> pq = new PriorityQueue<>(Comparator.comparingInt(e -> e[1]));
+        pq.add(new int[] {start, 0});
+        int count = 0;
 
-        while (!priorityQueue.isEmpty()) {
-            Node curr = priorityQueue.poll();
+        while (!pq.isEmpty() && count < v) {
+            int[] edge = pq.poll();
+            int node = edge[0];
+            int weight = edge[1];
 
-            if (curr.cost > dist[curr.dest]) {
+            if (distance[node] < weight) {
                 continue;
             }
 
-            // 현재 노드와 연결된 노드 가중치 비교
-            for (Node node : adjacency[curr.dest]) {
-                if (dist[node.dest] > curr.cost + node.cost) {
-                    dist[node.dest] = curr.cost + node.cost;
-                    priorityQueue.add(new Node(node.dest, dist[node.dest]));
+            for (int[] next : adj.get(node)) {
+                // 최단 경로 갱신 가능
+                if (distance[next[0]] > distance[node] + next[1]) {
+                    distance[next[0]] = distance[node] + next[1];
+                    pq.add(new int[] {next[0], distance[next[0]]});
                 }
             }
+            ++count;
         }
     }
 
-    private static class Node {
-        public int dest;
-        public int cost;
-
-        public Node(int dest, int cost) {
-            this.dest = dest;
-            this.cost = cost;
+    private static void initAdj(int v) {
+        adj = new ArrayList<>();
+        for (int i = 0; i <= v; i++) {
+            adj.add(new ArrayList<>());
         }
     }
 }
