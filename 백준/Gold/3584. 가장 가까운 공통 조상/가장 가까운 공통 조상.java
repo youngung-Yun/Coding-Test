@@ -58,19 +58,18 @@ public class Main {
             }
         }
 
-        while (a != b) {
-            int ancestor = 0;
-            while (parent[a][ancestor] != NONE && parent[b][ancestor] != NONE && parent[a][ancestor] != parent[b][ancestor]) {
-                ++ancestor;
-            }
-            if (ancestor > 0) {
-                --ancestor;
-            }
-            a = parent[a][ancestor];
-            b = parent[b][ancestor];
+        if (a == b) {
+            return a;
         }
 
-        return a;
+        for (int ancestor = 14; ancestor >= 0; --ancestor) {
+            if (parent[a][ancestor] != parent[b][ancestor]) {
+                a = parent[a][ancestor];
+                b = parent[b][ancestor];
+            }
+        }
+
+        return parent[a][0];
     }
 
     private static int[][] initParent(int n) {
