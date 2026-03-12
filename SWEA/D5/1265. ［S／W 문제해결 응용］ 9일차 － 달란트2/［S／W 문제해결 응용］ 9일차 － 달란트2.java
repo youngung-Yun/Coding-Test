@@ -14,26 +14,16 @@ public class Solution {
             int talent = Integer.parseInt(stk.nextToken());
             int p = Integer.parseInt(stk.nextToken());
 
-            // dp[i][p] = i 달란트로 p개 묶음 만들었을 때 최댓값
-            // dp[i][p] = max(dp[i-a][p-b] * dp[a][b]) (1 <= a < i, b >= 1)
-            long[][] dp = new long[talent+1][p+1];
+            int count = talent / p;
+            int remain = talent % p;
 
-            for (int i = 1; i <= talent; i++) {
-                dp[i][1] = i;
-            }
-
-            for (int i = 2; i <= talent; i++) {
-                for (int k = 2; k <= p; k++) {
-                    for (int a = 1; a < i; a++) {
-                        for (int b = 1; b < k; b++) {
-                            dp[i][k] = Long.max(dp[i][k], dp[i-a][k-b] * dp[a][b]);
-                        }
-                    }
-                }
+            long ans = 1;
+            for (int i = 0; i < p; i++) {
+                ans *= (remain-- > 0 ? count + 1 : count);
             }
 
             sb.append('#').append(tc).append(' ')
-                    .append(dp[talent][p]).append('\n');
+                    .append(ans).append('\n');
         }
         System.out.println(sb);
     }
