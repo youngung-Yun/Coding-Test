@@ -4,13 +4,12 @@ import java.util.*;
 
 public class Main {
 
+    final static int keyBinary = 0b1 << 6;
+    final static int[][] dirs = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
     static int n;
     static int m;
     static char[][] maze;
-    static int[][] dirs = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
-    static int[][][] distance;
-    static List<int[]> exits = new ArrayList<>();
-
+    static boolean[][][] visited;
 
     public static void main(String[] args) throws Exception {
 
@@ -22,8 +21,7 @@ public class Main {
         m = Integer.parseInt(token.nextToken());
 
         maze = new char[n][m];
-        distance = new int[n][m][0b1 << 6];
-        initDistance();
+        visited = new boolean[keyBinary][n][m];
 
         int startX = 0;
         int startY = 0;
@@ -36,104 +34,79 @@ public class Main {
                 if (object == '0') {
                     startX = r;
                     startY = c;
-                } else if (object == '1') {
-                    exits.add(new int[] { r, c });
                 }
             }
         }
-        bfs(startX, startY);
-        int ans = findMinDistance();
+        int ans = bfs(startX, startY);
         System.out.println(ans);
     }
 
-    static void bfs(int x, int y) {
-        // [x, y, keys]
+    static int bfs(int x, int y) {
+        // [x, y, keyset, distance]
         Queue<int[]> queue = new ArrayDeque<>();
-        queue.offer(new int[] {x, y , 0b0});
-        distance[x][y][0b0] = 0;
+        queue.offer(new int[] {x, y , 0b0, 0});
+        visited[0b0][x][y] = true;
 
+        int minDistance = -1;
         while (!queue.isEmpty()) {
             int[] current = queue.remove();
             int cx = current[0];
             int cy = current[1];
-            int keys = current[2];
+            int keyset = current[2];
+            int distance = current[3];
 
             if (maze[cx][cy] == '1') {
-                continue;
+                minDistance = distance;
+                break;
             }
 
             for (int[] dir : dirs) {
                 int nx = cx + dir[0];
                 int ny = cy + dir[1];
                 // 배열 밖이거나 이미 방문함
-                if (!isValid(nx, ny) || distance[nx][ny][keys] != -1) {
+                if (!isValid(nx, ny) || visited[keyset][nx][ny]) {
                     continue;
                 }
                 char object = maze[nx][ny];
                 // 벽
                 if (object == '#') {
                     continue;
-                // 열쇠
+                    // 열쇠
                 } else if (Character.isLowerCase(object)) {
                     // 해당 키를 가지고 있지 않으면 새로운 부분집합으로 큐에 넣음
-                    if (!haveKey(object, keys)) {
+                    if (!haveKey(object, keyset)) {
                         int newKey = 0b1 << (object - 'a');
-                        int newKeySet = keys | newKey;
+                        int newKeyset = keyset | newKey;
 
-                        distance[nx][ny][newKeySet] = distance[cx][cy][keys] + 1;
-                        queue.offer(new int[] {nx, ny, newKeySet});
+                        visited[newKeyset][nx][ny] = true;
+                        queue.offer(new int[] {nx, ny, newKeyset, distance + 1});
                         continue;
                     }
-                // 문
+                    // 문
                 } else if (Character.isUpperCase(object)) {
                     // 문에 맞는 키를 가지고 있지 않으면 지나갈 수 없음
-                    if (!haveMatchingKey(object, keys)) {
+                    if (!haveMatchingKey(object, keyset)) {
                         continue;
                     }
                 }
-                distance[nx][ny][keys] = distance[cx][cy][keys] + 1;
-                queue.offer(new int[] {nx, ny, keys});
+                visited[keyset][nx][ny] = true;
+                queue.offer(new int[] {nx, ny, keyset, distance + 1});
             }
         }
+        return minDistance;
     }
 
     static boolean isValid(int x, int y) {
         return x >= 0 && y >= 0 && x < n && y < m;
     }
 
-    static void initDistance() {
-        for (int[][] row : distance) {
-            for (int[] col : row) {
-                Arrays.fill(col, -1);
-            }
-        }
-    }
-
-    static int findMinDistance() {
-        int minDistance = -1;
-        for (int[] exit : exits) {
-            for (int i = 0; i < (0b1 << 6); i++) {
-                int currentDistance = distance[exit[0]][exit[1]][i];
-                // 못감
-                if (currentDistance == -1) {
-                    continue;
-                } else if (minDistance == -1) {
-                    minDistance = currentDistance;
-                } else {
-                    minDistance = Integer.min(minDistance, currentDistance);
-                }
-            }
-        }
-        return minDistance;
-    }
-
-    static boolean haveKey(char object, int keys) {
+    static boolean haveKey(char object, int keyset) {
         int key = 0b1 << (object - 'a');
-        return (key & keys) != 0;
+        return (key & keyset) != 0;
     }
 
-    static boolean haveMatchingKey(char object, int keys) {
+    static boolean haveMatchingKey(char object, int keyset) {
         int door = 0b1 << (object - 'A');
-        return (door & keys) != 0;
+        return (door & keyset) != 0;
     }
 }
