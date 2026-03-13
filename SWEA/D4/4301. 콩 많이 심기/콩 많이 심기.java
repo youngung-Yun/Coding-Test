@@ -16,15 +16,8 @@ public class Solution {
 
             int ans = 0;
             int[][] farm = new int[row][col];
-            // 첫 행에는 2개씩 띄어 심기
-            for (int c = 0; c < col; c++) {
-                if (c % 4 < 2) {
-                    farm[0][c] = 1;
-                    ++ans;
-                }
-            }
 
-            for (int r = 1; r < row; r++) {
+            for (int r = 0; r < row; r++) {
                 for (int c = 0; c < col; c++) {
                     if ((r-2 < 0 || farm[r-2][c] == 0) && (c - 2 < 0 || farm[r][c-2] == 0)) {
                         farm[r][c] = 1;
