@@ -37,24 +37,22 @@ public class Main {
 
         long ans = 0L;
         for (long width : coordX) {
-            ans += binarySearch(width, coordY, n + 1, k) + 1;
+            ans += binarySearch(width, coordY, n + 1, k);
         }
         System.out.println(ans);
     }
 
     private static int binarySearch(long width, long[] arr, int n, long limit) {
         int low = 0;
-        int high = n - 1;
-        int ans = -1;
-        while (low <= high) {
+        int high = n;
+        while (low < high) {
             int mid = low + (high - low) / 2;
             if (width * arr[mid] <= limit) {
-                ans = mid;
                 low = mid + 1;
             } else {
-                high = mid - 1;
+                high = mid;
             }
         }
-        return ans;
+        return low;
     }
 }
