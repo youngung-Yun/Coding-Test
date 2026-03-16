@@ -7,8 +7,7 @@ class Solution {
             return new int[] {-1};
         }
         
-        int[] ans = getMultiply(new int[n], 0, n, s);
-        return ans;
+        return getMultiply(new int[n], 0, n, s);
     }
     
     
