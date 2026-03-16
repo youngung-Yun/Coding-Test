@@ -35,32 +35,26 @@ class Solution {
         if (dp[node][on] != INF) {
             return dp[node][on];
         }
-        // 리프 노드 (루트 제외)
-        if (adj.get(node).size() == 1 && node != parent) {
-            dp[node][0] = 0;
-            dp[node][1] = 1;
-        } else {
-            // node가 꺼진 경우 자식들은 모두 켜져야 함
-            if (on == 0) {
-                int sum = 0;
-                for (int next : adj.get(node)) {
-                    if (next == parent) {
-                        continue;
-                    }
-                    sum += getDp(next, node, 1);
+        // node가 꺼진 경우 자식들은 모두 켜져야 함
+        if (on == 0) {
+            int sum = 0;
+            for (int next : adj.get(node)) {
+                if (next == parent) {
+                    continue;
                 }
-                dp[node][on] = sum;
-            } else {
-                // node가 켜진 경우는 자식의 최솟값 합 + 1
-                int sum = 1;
-                for (int next : adj.get(node)) {
-                    if (next == parent) {
-                        continue;
-                    }
-                    sum += Integer.min(getDp(next, node, 0), getDp(next, node, 1));
-                }
-                dp[node][on] = sum;
+                sum += getDp(next, node, 1);
             }
+            dp[node][on] = sum;
+        } else {
+            // node가 켜진 경우는 자식의 최솟값 합 + 1
+            int sum = 1;
+            for (int next : adj.get(node)) {
+                if (next == parent) {
+                    continue;
+                }
+                sum += Integer.min(getDp(next, node, 0), getDp(next, node, 1));
+            }
+            dp[node][on] = sum;
         }
         return dp[node][on];
     }
