@@ -23,6 +23,8 @@ public class Main {
             exitMap.put(exit[i], i);
         }
 
+        // 추월한 차량이다 == 터널 진입 전 내 앞에 있던 차량 중 하나라도
+        // 진입 후 내 뒤에 있으면 추월을 했음.
         int ans = 0;
         for (int i = 1; i < n; i++) {
             int currentOrder = exitMap.get(enter[i]);
