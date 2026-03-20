@@ -1,5 +1,6 @@
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 import java.util.StringTokenizer;
 
 public class Main {
@@ -9,10 +10,10 @@ public class Main {
         StringTokenizer stk;
 
         int n = Integer.parseInt(bf.readLine());
-        int[] home = new int[n];
+        int[] coord = new int[n];
         stk = new StringTokenizer(bf.readLine());
         for (int i = 0; i < n; i++) {
-            home[i] = Integer.parseInt(stk.nextToken());
+            coord[i] = Integer.parseInt(stk.nextToken());
         }
         int[] time = new int[n];
         stk = new StringTokenizer(bf.readLine());
@@ -20,28 +21,31 @@ public class Main {
             time[i] = Integer.parseInt(stk.nextToken());
         }
 
-        // 각 위치의 택배 받는 시간 = max(abs(위치 - 현재위치), (시간 - 현재시간))
-        // 이게 가장 작은 집부터 방문
-
-        int currentTime = 0;
-        int currentCoord = 0;
-        boolean[] visited = new boolean[n];
+        // [coord, time]
+        int[][] parcels = new int[n][2];
         for (int i = 0; i < n; i++) {
-            int min = Integer.MAX_VALUE;
-            int idx = 0;
-            for (int k = 0; k < n; k++) {
-                if (visited[k]) {
-                    continue;
-                }
-                int elapsed = Integer.max(Math.abs(currentCoord - home[k]), (time[k] - currentTime));
-                if (min > elapsed) {
-                    min = elapsed;
-                    idx = k;
-                }
+            parcels[i][0] = coord[i];
+            parcels[i][1] = time[i];
+        }
+
+        // 가장 멀리 있는 택배부터
+        Arrays.sort(parcels, (p1, p2) -> {
+            if (p1[0] == p2[0]) {
+                return Integer.compare(p1[1], p2[1]);
+            } else {
+                return Integer.compare(p2[0], p1[0]);
             }
-            visited[idx] = true;
-            currentTime += min;
-            currentCoord = home[idx];
+        });
+
+        int currentCoord = parcels[0][0];
+        int currentTime = currentCoord;
+
+        for (int[] parcel : parcels) {
+            currentTime += (currentCoord - parcel[0]);
+            currentCoord = parcel[0];
+            if (currentTime < parcel[1]) {
+                currentTime = parcel[1];
+            }
         }
 
         currentTime += currentCoord;
