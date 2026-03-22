@@ -1,5 +1,6 @@
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.PriorityQueue;
 import java.util.StringTokenizer;
@@ -25,14 +26,18 @@ public class Main {
             jewels.add(new int[] {mass, value});
         }
 
-        PriorityQueue<Integer> bags = new PriorityQueue<>(Comparator.naturalOrder());
+        int[] bags = new int[k];
         for (int i = 0; i < k; i++) {
-            bags.add(Integer.parseInt(bf.readLine()));
+            bags[i] = Integer.parseInt(bf.readLine());
         }
 
+        Arrays.sort(bags);
+
         long ans = 0L;
-        while (!bags.isEmpty()) {
-            int bag = bags.poll();
+        int idx = 0;
+        while (idx < k) {
+            int bag = bags[idx];
+            ++idx;
             while (!jewels.isEmpty() && jewels.peek()[0] <= bag) {
                 mostValuable.add(jewels.poll());
             }
@@ -41,7 +46,6 @@ public class Main {
             }
             ans += mostValuable.poll()[1];
         }
-
         System.out.println(ans);
     }
 
