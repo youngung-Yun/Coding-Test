@@ -4,104 +4,74 @@ import java.util.*;
 
 public class Main {
 
-    final static int MIN = 0;
-    final static int MAX = 1_000_000_001;
-
-    static int n;
-    static int[] arr;
-    static int[] minTree;
-    static int[] maxTree;
+    static int[] seq;
+    static int[] mins;
+    static int[] maxes;
 
     public static void main(String[] args) throws Exception {
         BufferedReader bf = new BufferedReader(new InputStreamReader(System.in));
+        StringBuilder sb = new StringBuilder();
 
         StringTokenizer stk = new StringTokenizer(bf.readLine());
-        n = Integer.parseInt(stk.nextToken());
+        int n = Integer.parseInt(stk.nextToken());
         int m = Integer.parseInt(stk.nextToken());
-
-        arr = new int[n+1];
-        for (int i = 1; i <= n; i++) {
-            arr[i] = Integer.parseInt(bf.readLine());
+        seq = new int[n];
+        for (int i = 0; i < n; i++) {
+            seq[i] = Integer.parseInt(bf.readLine());
         }
 
-        buildMinTree();
-        buildMaxTree();
+        int size = (int) Math.sqrt(n);
+        int length = (int) Math.ceil((double) n / size);
+        mins = new int[length];
+        Arrays.fill(mins, 1_000_000_001);
+        for (int s = 0; s < n; s++) {
+            int bucket = s / size;
+            mins[bucket] = Integer.min(mins[bucket], seq[s]);
+        }
 
-        StringBuilder sb = new StringBuilder();
-        for (int query = 0; query < m; query++) {
+        maxes = new int[length];
+        for (int s = 0; s < n; s++) {
+            int bucket = s / size;
+            maxes[bucket] = Integer.max(maxes[bucket], seq[s]);
+        }
+
+        for (int i = 0; i < m; i++) {
             stk = new StringTokenizer(bf.readLine());
-            int start = Integer.parseInt(stk.nextToken());
-            int end = Integer.parseInt(stk.nextToken());
-
-            int min = queryMin(start, end);
-            int max = queryMax(start, end);
-            sb.append(min).append(' ').append(max).append('\n');
+            int left = Integer.parseInt(stk.nextToken()) - 1;
+            int right = Integer.parseInt(stk.nextToken()) - 1;
+            int[] result = query(size, n, left, right);
+            sb.append(result[0]).append(' ').append(result[1]).append('\n');
         }
-
         System.out.println(sb);
     }
 
-    private static void buildMinTree() {
-        minTree = new int[n * 4];
-        buildMinTree(1, 1, n);
-    }
+    static int[] query(int size, int n, int left, int right) {
+        int min = 1_000_000_001;
+        int max = 0;
 
-    private static void buildMinTree(int current, int start, int end) {
-        if (start == end) {
-            minTree[current] = arr[start];
-            return;
-        }
-        int mid = start + (end - start) / 2;
-        buildMinTree(current * 2, start, mid);
-        buildMinTree(current * 2 + 1, mid + 1, end);
-        minTree[current] = Integer.min(minTree[current*2], minTree[current*2+1]);
-    }
+        int leftBlockIdx = left / size;
+        int rightBlockIdx = right / size;
 
-    private static void buildMaxTree() {
-        maxTree = new int[n * 4];
-        buildMaxTree(1, 1, n);
-    }
-
-    private static void buildMaxTree(int current, int start, int end) {
-        if (start == end) {
-            maxTree[current] = arr[start];
-            return;
-        }
-        int mid = start + (end - start) / 2;
-        buildMaxTree(current * 2, start, mid);
-        buildMaxTree(current * 2 + 1, mid + 1, end);
-        maxTree[current] = Integer.max(maxTree[current*2], maxTree[current*2+1]);
-    }
-
-    private static int queryMin(int left, int right) {
-        return queryMin(1, 1, n, left, right);
-    }
-
-    private static int queryMin(int current, int start, int end, int left, int right) {
-        if (start > right || end < left) {
-            return MAX;
-        }
-        if (start >= left && end <= right) {
-            return minTree[current];
+        if (leftBlockIdx == rightBlockIdx) {
+            for (int i = left; i <= right; i++) {
+                min = Integer.min(min, seq[i]);
+                max = Integer.max(max, seq[i]);
+            }
+            return new int[] {min, max};
         }
 
-        int mid = start + (end - start) / 2;
-        return Integer.min(queryMin(current * 2, start, mid, left, right), queryMin(current * 2 + 1, mid + 1, end, left, right));
-    }
-
-    private static int queryMax(int left, int right) {
-        return queryMax(1, 1, n, left, right);
-    }
-
-    private static int queryMax(int current, int start, int end, int left, int right) {
-        if (start > right || end < left) {
-            return MIN;
+        for (int i = left; i < (leftBlockIdx + 1) * size; i++) {
+            min = Integer.min(min, seq[i]);
+            max = Integer.max(max, seq[i]);
         }
-        if (start >= left && end <= right) {
-            return maxTree[current];
+        for (int i = leftBlockIdx + 1; i < rightBlockIdx; i++) {
+            min = Integer.min(min, mins[i]);
+            max = Integer.max(max, maxes[i]);
         }
-
-        int mid = start + (end - start) / 2;
-        return Integer.max(queryMax(current * 2, start, mid, left, right), queryMax(current * 2 + 1, mid + 1, end, left, right));
+        for (int i = rightBlockIdx * size; i <= right; i++) {
+            min = Integer.min(min, seq[i]);
+            max = Integer.max(max, seq[i]);
+        }
+        return new int[] {min, max};
     }
 }
