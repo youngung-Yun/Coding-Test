@@ -23,6 +23,7 @@ public class Main {
                 parent[i] = i;
             }
 
+            int total = 0;
             int[][] edges = new int[n][3];
             for (int i = 0; i < n; i++) {
                 stk = new StringTokenizer(bf.readLine());
@@ -30,20 +31,25 @@ public class Main {
                 int y = Integer.parseInt(stk.nextToken());
                 int z = Integer.parseInt(stk.nextToken());
                 edges[i] = new int[] {x, y, z};
+                total += z;
             }
             Arrays.sort(edges, (a1, a2) -> Integer.compare(a1[2], a2[2]));
 
-            int ans = 0;
+            int count = 0;
             for (int[] edge : edges) {
                 int x = edge[0];
                 int y = edge[1];
                 int z = edge[2];
-                if (union(x, y)) {
+                if (!union(x, y)) {
                     continue;
                 }
-                ans += z;
+                ++count;
+                total -= z;
+                if (count == m - 1) {
+                    break;
+                }
             }
-            sb.append(ans).append('\n');
+            sb.append(total).append('\n');
         }
         System.out.println(sb);
     }
