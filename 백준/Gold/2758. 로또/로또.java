@@ -17,35 +17,31 @@ public class Main {
             int m = Integer.parseInt(stk.nextToken());
             int n = Integer.parseInt(stk.nextToken());
 
-            dp = new long[n+1][m+1];
-            for (int i = 0; i <= n; i++) {
-                for (int k = 0; k <= m; k++) {
+            // m개의 숫자를 골랐을 때 최대값이 n 이하인 경우의 수
+            // n-1에서 m개를 다 골랐을 경우 + n/2에서 m-1개를 골랐을 경우
+            dp = new long[m+1][n+1];
+            Arrays.fill(dp[0], 1);
+            for (int i = 1; i <= m; i++) {
+                for (int k = 1; k <= n; k++) {
                     dp[i][k] = INIT;
                 }
             }
 
-            long ans = 0L;
-            for (int last = 1; last <= n; last++) {
-                ans += getDp(last, m);
-            }
+            long ans = getDp(m, n);
             sb.append(ans).append('\n');
         }
         System.out.println(sb);
     }
 
-    static long getDp(int number, int order) {
-        if (dp[number][order] != INIT) {
-            return dp[number][order];
+    static long getDp(int count, int number) {
+        if (dp[count][number] != INIT) {
+            return dp[count][number];
         }
-        if (order == 1) {
-            dp[number][order] = 1;
-            return dp[number][order];
+        if (number <= 0) {
+            return 0;
         }
 
-        dp[number][order] = 0;
-        for (int prev = 1; prev <= number / 2; prev++) {
-            dp[number][order] += getDp(prev, order - 1);
-        }
-        return dp[number][order];
+        dp[count][number] = getDp(count, number - 1) + getDp(count - 1, number / 2);
+        return dp[count][number];
     }
 }
